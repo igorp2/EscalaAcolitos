@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("meses").addEventListener("change", function () {
         const selectElement = document.getElementById("meses");
         const selectedValue = selectElement.value; // Valor da opção selecionada
-      
+        const divTabelaInicial = document.getElementById("tabelaInicialDiv");
+        divTabelaInicial.style.height = "auto";
+        
         if (selectedValue === "") {
             const divTabelaInicial = document.getElementById("tabelaInicialDiv");
             const domingosDiv = document.getElementById("domingosDiv");
@@ -35,6 +37,7 @@ function mostrarTabelaInicial() {
         return;
     }
 
+    domingos = [];
     divTabelaInicial.style.display = "block";
 
     // Mapeamento dos meses para números
