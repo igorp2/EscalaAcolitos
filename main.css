@@ -115,28 +115,13 @@ tr > th{
 }
 
  /* Estilo da div oculta inicialmente */
- #conteudo, #domingosDiv {
+ #domingosDiv, #tabelaInicialDiv, #confirmacaoDiv{
     display: block;
     height: 0px; /* Inicialmente oculto */
     overflow: hidden; /* Impede que o conteúdo ultrapasse a altura da div */
     padding: 10px;
     margin-top: 10px;
-    opacity: 0; /* Começa invisível */
     transition: height 0.5s ease, padding 0.5s ease, opacity 0.5s ease; /* Adiciona animação para opacidade */
-}
-
-/* Botão para expandir/ocultar */
-#botao {
-    margin-top: 0px;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-#botao:hover {
-    background-color: #0056b3;
 }
 
 button{

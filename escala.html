@@ -36,7 +36,7 @@
                     </tbody>
                 </table>
             </div> -->
-            <form id="escalaForm">
+            <form id="escalaForm" style="margin-bottom: -60px;">
                 <div class="input-group">
                     <label for="meses">Selecione o mês:</label>
                     <select id="meses" required>
@@ -57,7 +57,7 @@
                 </div>
             </form>
 
-            <div id="tabelaInicialDiv" style="transition: height 0.3s, opacity 0.3s; overflow: hidden; height: 0; opacity: 0; padding: 10px;">
+            <div id="tabelaInicialDiv" style="transition: height 0.3s, opacity 0.3s; overflow: hidden; height: 0; padding: 10px;">
                 <h3>Marcar Missa às 7h</h3>
                 <table id="tabelaInicial">
                     <thead>
@@ -70,10 +70,23 @@
                 </table>
             </div>
             <div id="mostrarDomingos" style="display:none;">
-                <button onclick="mostrarDomingos()">Confirmar Missas às 7h</button>
+                <button onclick="confirmacaoDomingo()">Confirmar Missas às 7h</button>
+            </div>
+
+            <div id="confirmacaoDiv" style="transition: height 0.3s, opacity 0.3s; overflow: hidden; height: 0; padding: 10px;">
+                <h3>Confirmação de Domingos</h3>
+                <table id="confirmacaoTabela" border="1">
+                    <thead>
+                        <tr></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="mostrarDomingosConfirmado" style="display:none;">
+                <button onclick="mostrarDomingos()">Confirmar Missas</button>
             </div>
             
-            <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; overflow-x: auto; max-width: 100%; opacity: 0;">
+            <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; overflow-x: auto; max-width: 100%;">
                 <h3>Impedimentos de <span id="mesSelecionado"></span></h3>
                 <table id="domingosTabela">
                     <thead>
@@ -94,42 +107,197 @@
         <script>
             // Vetor com os dados de nomes e preferências (true para preferido, false para não preferido)
             let missas = []
+            let alocacao = []
             const acolitosImpedimentos = [
-                {
-                    nome: "Acolito 1",
-                    impedimentos: [
-                        { dia: 1, horario: 7 },
-                        { dia: 5, horario: 19 },
-                        { dia: 12, horario: 7 },
-                        { dia: 18, horario: 19 }
-                    ]
-                },
-                {
-                    nome: "Acolito 2",
-                    impedimentos: [
-                        { dia: 5, horario: 7 },
-                        { dia: 12, horario: 19 },
-                        { dia: 19, horario: 7 },
-                        { dia: 26, horario: 19 }
-                    ]
-                },
-                {
-                    nome: "Acolito 3",
-                    impedimentos: [
-                        { dia: 10, horario: 7 },
-                        { dia: 20, horario: 19 },
-                        { dia: 27, horario: 7 },
-                        { dia: 30, horario: 19 }
-                    ]
-                }
-            ];
+            {
+                nome: "Acolito 1",
+                impedimentos: [
+                    { dia: 1, horario: 7 },
+                    { dia: 5, horario: 19 },
+                    { dia: 12, horario: 7 },
+                    { dia: 18, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 2",
+                impedimentos: [
+                    { dia: 5, horario: 7 },
+                    { dia: 12, horario: 19 },
+                    { dia: 19, horario: 7 },
+                    { dia: 26, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 3",
+                impedimentos: [
+                    { dia: 10, horario: 7 },
+                    { dia: 20, horario: 19 },
+                    { dia: 27, horario: 7 },
+                    { dia: 30, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 4",
+                impedimentos: [
+                    { dia: 2, horario: 7 },
+                    { dia: 9, horario: 19 },
+                    { dia: 16, horario: 7 },
+                    { dia: 23, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 5",
+                impedimentos: [
+                    { dia: 3, horario: 7 },
+                    { dia: 15, horario: 19 },
+                    { dia: 22, horario: 7 },
+                    { dia: 29, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 6",
+                impedimentos: [
+                    { dia: 4, horario: 7 },
+                    { dia: 11, horario: 19 },
+                    { dia: 18, horario: 7 },
+                    { dia: 25, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 7",
+                impedimentos: [
+                    { dia: 6, horario: 7 },
+                    { dia: 13, horario: 19 },
+                    { dia: 20, horario: 7 },
+                    { dia: 27, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 8",
+                impedimentos: [
+                    { dia: 8, horario: 7 },
+                    { dia: 14, horario: 19 },
+                    { dia: 21, horario: 7 },
+                    { dia: 28, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 9",
+                impedimentos: [
+                    { dia: 2, horario: 7 },
+                    { dia: 6, horario: 19 },
+                    { dia: 14, horario: 7 },
+                    { dia: 22, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 10",
+                impedimentos: [
+                    { dia: 4, horario: 7 },
+                    { dia: 12, horario: 19 },
+                    { dia: 18, horario: 7 },
+                    { dia: 30, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 11",
+                impedimentos: [
+                    { dia: 3, horario: 7 },
+                    { dia: 11, horario: 19 },
+                    { dia: 19, horario: 7 },
+                    { dia: 26, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 12",
+                impedimentos: [
+                    { dia: 7, horario: 7 },
+                    { dia: 15, horario: 19 },
+                    { dia: 21, horario: 7 },
+                    { dia: 28, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 13",
+                impedimentos: [
+                    { dia: 5, horario: 7 },
+                    { dia: 9, horario: 19 },
+                    { dia: 14, horario: 7 },
+                    { dia: 22, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 14",
+                impedimentos: [
+                    { dia: 3, horario: 7 },
+                    { dia: 10, horario: 19 },
+                    { dia: 16, horario: 7 },
+                    { dia: 24, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 15",
+                impedimentos: [
+                    { dia: 6, horario: 7 },
+                    { dia: 14, horario: 19 },
+                    { dia: 18, horario: 7 },
+                    { dia: 25, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 16",
+                impedimentos: [
+                    { dia: 7, horario: 7 },
+                    { dia: 13, horario: 19 },
+                    { dia: 21, horario: 7 },
+                    { dia: 29, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 17",
+                impedimentos: [
+                    { dia: 9, horario: 7 },
+                    { dia: 16, horario: 19 },
+                    { dia: 22, horario: 7 },
+                    { dia: 30, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 18",
+                impedimentos: [
+                    { dia: 8, horario: 7 },
+                    { dia: 15, horario: 19 },
+                    { dia: 23, horario: 7 },
+                    { dia: 29, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 19",
+                impedimentos: [
+                    { dia: 1, horario: 7 },
+                    { dia: 10, horario: 19 },
+                    { dia: 18, horario: 7 },
+                    { dia: 26, horario: 19 }
+                ]
+            },
+            {
+                nome: "Acolito 20",
+                impedimentos: [
+                    { dia: 2, horario: 7 },
+                    { dia: 9, horario: 19 },
+                    { dia: 16, horario: 7 },
+                    { dia: 24, horario: 19 }
+                ]
+            }
+        ];
 
 
-            const acolitosHorarios = [
-                { nome: "Acolito 1", preferencias: ["7:00"] },
-                { nome: "Acolito 2", preferencias: ["19:30"] },
-                { nome: "Acolito 3", preferencias: ["7:00", "19:30"] }
-            ];
+
+            // const acolitosHorarios = [
+            //     { nome: "Acolito 1", preferencias: ["7:00"] },
+            //     { nome: "Acolito 2", preferencias: ["19:30"] },
+            //     { nome: "Acolito 3", preferencias: ["7:00", "19:30"] }
+            // ];
 
 
             // Função para preencher a tabela com os dados
