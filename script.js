@@ -473,7 +473,12 @@ function verificarDisponibilidade(acolito, missa, horario) {
 // Função principal para alocar acólitos de forma equitativa e aleatória
 function alocarAcolitosPorFuncao(missas) {
     const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
-        acc[acolito.nome] = { total: 0, funcoes: {}, finaisDeSemana: new Set() };
+        acc[acolito.nome] = { 
+            total: 0, 
+            funcoes: {}, 
+            finaisDeSemana: new Set(),
+            diasEscalados: new Set() // Adiciona esta propriedade
+        };
         return acc;
     }, {});
 
@@ -485,89 +490,104 @@ function alocarAcolitosPorFuncao(missas) {
         return array;
     }
 
-    function calcularMediaEscalacoes() {
-        const totais = Object.values(contadorServicos).map(ac => ac.total);
-        return totais.length ? totais.reduce((a, b) => a + b, 0) / totais.length : 0;
-    }
-
     function priorizarMenosEscalados(acolitosDisponiveis) {
-        return acolitosDisponiveis.sort((a, b) => contadorServicos[a.nome].total - contadorServicos[b.nome].total);
-    }
-    
-    function verificarRevezamento(acolito, missa) {
-        return !verificarEscaladoFinaisDeSemana(acolito, missa);
-    }
-    
-    function verificarEscaladoFinaisDeSemana(acolito, missa) {
+        return acolitosDisponiveis.sort((a, b) => {
+            const escalaA = contadorServicos[a.nome].total;
+            const escalaB = contadorServicos[b.nome].total;
+            return escalaA - escalaB;
+        });
+    }    
+
+    function verificarEscaladoNoMesmoDia(acolito, missa) {
         const dataMissa = new Date(missa.data);
-        const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
-        
-        if (contadorServicos[acolito.nome].finaisDeSemana.has(semanaAtual)) {
-            return true;
+        const diaAtual = `${dataMissa.getFullYear()}-${(dataMissa.getMonth() + 1).toString().padStart(2, '0')}-${dataMissa.getDate().toString().padStart(2, '0')}`; // Formato YYYY-MM-DD com padding
+    
+        // Se o acólito já foi escalado nesse dia, então permite múltiplos escalamentos em dias diferentes
+        if (contadorServicos[acolito.nome].diasEscalados.has(diaAtual)) {
+            return true;  // Permite alocação no mesmo dia
         }
-        
-        if (dataMissa.getDay() === 6 || dataMissa.getDay() === 0) {
-            contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual);
-        }
-        
-        return false;
-    }
+    
+        // Marca o acólito como escalado nesse dia
+        contadorServicos[acolito.nome].diasEscalados.add(diaAtual);
+    
+        return true;
+    }  
 
     function alocarAcólitosBalanceados(missa) {
         const cacheAlocadosNoHorario = new Set();
-
+    
         missa.horarios = missa.horarios.map(horario => {
+            // Filtra os acólitos disponíveis
             let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {
                 return (
-                    !cacheAlocadosNoHorario.has(acolito.nome) &&
-                    verificarDisponibilidade(acolito, missa, horario) &&
-                    verificarRevezamento(acolito, missa)
+                    !cacheAlocadosNoHorario.has(acolito.nome) && // Não foi alocado nesse horário
+                    verificarDisponibilidade(acolito, missa, horario) && 
+                    verificarEscaladoNoMesmoDia(acolito, missa)
                 );
             });
-
+    
+            // Embaralha os acólitos para balancear a distribuição
             acolitosParaHorario = embaralhar(priorizarMenosEscalados(acolitosParaHorario));
-
+    
             const funcoes = { cerimoniario: null, librifera: null, credencia: [], turibulo: null, naveta: null };
-            const ocupadas = new Set();
-
+            const ocupadas = new Set(); // Marcação para acólitos já alocados para essa função
+    
+            const dataMissa = new Date(missa.data);
+            const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000)); // Calcula semanaAtual uma vez
+            
+            // Reordena acólitos para balancear mais, garantindo que o mais escalado não seja o primeiro
+            acolitosParaHorario = acolitosParaHorario.sort((a, b) => {
+                const escalaA = contadorServicos[a.nome].total;
+                const escalaB = contadorServicos[b.nome].total;
+                return escalaA - escalaB;
+            });
+    
             acolitosParaHorario.forEach(acolito => {
-                if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome) && !ocupadas.has(acolito.nome)) {
+                // Atribui funções, permitindo múltiplos escalamentos
+                if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome)) {
                     funcoes.cerimoniario = acolito;
-                    ocupadas.add(acolito.nome);
-                } else if (!funcoes.librifera && acolitosLibrifera.includes(acolito.nome) && !ocupadas.has(acolito.nome)) {
+                    cacheAlocadosNoHorario.add(acolito.nome); // Marca como alocado nesse horário
+                    ocupadas.add(acolito.nome); // Marca que já foi alocado para essa função
+                } else if (!funcoes.librifera && acolitosLibrifera.includes(acolito.nome)) {
                     funcoes.librifera = acolito;
+                    cacheAlocadosNoHorario.add(acolito.nome);
                     ocupadas.add(acolito.nome);
-                } else if (horario.turibulo && !funcoes.turibulo && !ocupadas.has(acolito.nome)) {
+                } else if (horario.turibulo && !funcoes.turibulo && acolitosTuribulo.includes(acolito.nome)) {
                     funcoes.turibulo = acolito;
+                    cacheAlocadosNoHorario.add(acolito.nome);
                     ocupadas.add(acolito.nome);
-                } else if (horario.turibulo && !funcoes.naveta && !ocupadas.has(acolito.nome)) {
+                } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(acolito.nome)) {
                     funcoes.naveta = acolito;
+                    cacheAlocadosNoHorario.add(acolito.nome);
                     ocupadas.add(acolito.nome);
-                } else if (funcoes.credencia.length < 4 && !ocupadas.has(acolito.nome)) {
+                } else if (funcoes.credencia.length < 4) {
                     funcoes.credencia.push(acolito);
+                    cacheAlocadosNoHorario.add(acolito.nome);
                     ocupadas.add(acolito.nome);
                 }
             });
-
+    
+            // Atualiza os contadores de serviços para os acólitos escalados
             [funcoes.cerimoniario, funcoes.librifera, ...funcoes.credencia, funcoes.turibulo, funcoes.naveta]
                 .forEach(acolito => {
                     if (acolito) {
                         contadorServicos[acolito.nome].total++;
                         contadorServicos[acolito.nome].funcoes[horario.funcao] = 
                             (contadorServicos[acolito.nome].funcoes[horario.funcao] || 0) + 1;
-                        cacheAlocadosNoHorario.add(acolito.nome);
+                        contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual); // Adiciona semanaAtual uma vez
                     }
                 });
-
+    
             return { ...horario, funcoes };
         });
-
+    
         return missa;
     }
 
     const resultado = missas.map(missa => alocarAcólitosBalanceados(missa));
     return resultado;
 }
+
 
 async function gerarPDF() {
     const { jsPDF } = window.jspdf;
