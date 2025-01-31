@@ -1,7 +1,26 @@
-const acolitosTuribulo = ["André", "Miguel", "Felipe", "Carla"];
-const acolitosNaveta = ["Marina", "Daniela", "Tatiana", "Monica"];
-const acolitosCerimoniario = ["Pedro", "João", "Carlos", "Lucas"];
-const acolitosLibrifera = ["Renata", "Sofia", "Gabriela", "Clara"];
+const acolitosTuribulo = [
+    "Arthur", "Carlos", "Daniel", "Dionísio", "Gabriel Nunes","João Pedro", "Paulo", "Maria Luiza", "Ester", "Laryssa Lopes"
+];
+
+const acolitosNaveta = [
+    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
+    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
+    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
+    "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
+];
+
+const acolitosCerimoniario = [
+    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio", 
+    "Igor", "João Pedro", "Josué", "Paulo"
+];
+
+const acolitosLibrifera = [
+    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
+    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
+    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
+    "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
+];
+
 const irmaos = [["Renata", "Sofia"], ["Pedro", "Miguel", "Clara"]];
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -451,14 +470,12 @@ function verificarDisponibilidade(acolito, missa, horario) {
     );
 }
 
-// Função principal para alocar acólitos de forma equitativa e aleatória, com alternância de horários
+// Função principal para alocar acólitos de forma equitativa e aleatória
 function alocarAcolitosPorFuncao(missas) {
     const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
-        acc[acolito.nome] = { total: 0, funcoes: {}, escaladoMes: false };
+        acc[acolito.nome] = { total: 0, funcoes: {}, finaisDeSemana: new Set() };
         return acc;
     }, {});
-
-    const historicoHorarios = {};
 
     function embaralhar(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -468,40 +485,31 @@ function alocarAcolitosPorFuncao(missas) {
         return array;
     }
 
-    function priorizarMenosUtilizados(acolitosDisponiveis) {
-        return acolitosDisponiveis.sort((a, b) => {
-            const usoA = contadorServicos[a.nome].total;
-            const usoB = contadorServicos[b.nome].total;
-            const funcoesA = Object.keys(contadorServicos[a.nome].funcoes).length;
-            const funcoesB = Object.keys(contadorServicos[b.nome].funcoes).length;
-            return (usoA - usoB) || (funcoesA - funcoesB); // Prioriza menos usados e com menos funções
-        });
+    function calcularMediaEscalacoes() {
+        const totais = Object.values(contadorServicos).map(ac => ac.total);
+        return totais.length ? totais.reduce((a, b) => a + b, 0) / totais.length : 0;
     }
 
-    function verificarRevezamento(acolito, funcao, missa) {
-        if (verificarEscaladoNoUltimoFimDeSemana(acolito, missa)) {
-            return false;
-        }
-
-        const totalFuncoes = Object.keys(contadorServicos[acolito.nome].funcoes).length;
-        const jaEscaladoMes = contadorServicos[acolito.nome].escaladoMes;
-        const funcaoJaEscalada = contadorServicos[acolito.nome].funcoes[funcao] && contadorServicos[acolito.nome].funcoes[funcao] >= 2;
-
-        return !funcaoJaEscalada && !jaEscaladoMes && totalFuncoes < 3;
+    function priorizarMenosEscalados(acolitosDisponiveis) {
+        return acolitosDisponiveis.sort((a, b) => contadorServicos[a.nome].total - contadorServicos[b.nome].total);
     }
-
-    function verificarEscaladoNoUltimoFimDeSemana(acolito, missa) {
-        const ultimaEscala = historicoHorarios[acolito.nome]?.ultimaEscala;
-        if (ultimaEscala) {
-            const dataUltimaEscala = new Date(ultimaEscala);
-            const diaDaSemanaUltimaEscala = dataUltimaEscala.getDay();
-
-            if (diaDaSemanaUltimaEscala === 0) { // Domingo
-                const dataEscala = new Date(missa.data);
-                const diaDaSemanaAtual = dataEscala.getDay();
-                return diaDaSemanaAtual === 0; // Impede escala no próximo domingo
-            }
+    
+    function verificarRevezamento(acolito, missa) {
+        return !verificarEscaladoFinaisDeSemana(acolito, missa);
+    }
+    
+    function verificarEscaladoFinaisDeSemana(acolito, missa) {
+        const dataMissa = new Date(missa.data);
+        const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
+        
+        if (contadorServicos[acolito.nome].finaisDeSemana.has(semanaAtual)) {
+            return true;
         }
+        
+        if (dataMissa.getDay() === 6 || dataMissa.getDay() === 0) {
+            contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual);
+        }
+        
         return false;
     }
 
@@ -509,78 +517,56 @@ function alocarAcolitosPorFuncao(missas) {
         const cacheAlocadosNoHorario = new Set();
 
         missa.horarios = missa.horarios.map(horario => {
-            const acolitosParaHorario = embaralhar(priorizarMenosUtilizados(
-                acolitosImpedimentos.filter(acolito => {
-                    const jaEscaladoHoje = cacheAlocadosNoHorario.has(acolito.nome);
-                    return (
-                        !jaEscaladoHoje &&
-                        verificarDisponibilidade(acolito, missa, horario) &&
-                        verificarRevezamento(acolito, horario.funcao, missa)
-                    );
-                })
-            )) ;
+            let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {
+                return (
+                    !cacheAlocadosNoHorario.has(acolito.nome) &&
+                    verificarDisponibilidade(acolito, missa, horario) &&
+                    verificarRevezamento(acolito, missa)
+                );
+            });
 
-            const funcoes = {
-                cerimoniario: null,
-                librifera: null,
-                credencia: [],
-                turibulo: null,
-                naveta: null
-            };
+            acolitosParaHorario = embaralhar(priorizarMenosEscalados(acolitosParaHorario));
+
+            const funcoes = { cerimoniario: null, librifera: null, credencia: [], turibulo: null, naveta: null };
+            const ocupadas = new Set();
 
             acolitosParaHorario.forEach(acolito => {
-                if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome)) {
+                if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome) && !ocupadas.has(acolito.nome)) {
                     funcoes.cerimoniario = acolito;
-                } else if (!funcoes.librifera && acolitosLibrifera.includes(acolito.nome)) {
+                    ocupadas.add(acolito.nome);
+                } else if (!funcoes.librifera && acolitosLibrifera.includes(acolito.nome) && !ocupadas.has(acolito.nome)) {
                     funcoes.librifera = acolito;
-                } else if (horario.turibulo && !funcoes.turibulo && acolitosTuribulo.includes(acolito.nome)) {
+                    ocupadas.add(acolito.nome);
+                } else if (horario.turibulo && !funcoes.turibulo && !ocupadas.has(acolito.nome)) {
                     funcoes.turibulo = acolito;
-                } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(acolito.nome)) {
+                    ocupadas.add(acolito.nome);
+                } else if (horario.turibulo && !funcoes.naveta && !ocupadas.has(acolito.nome)) {
                     funcoes.naveta = acolito;
-                } else if (funcoes.credencia.length < 4) {
+                    ocupadas.add(acolito.nome);
+                } else if (funcoes.credencia.length < 4 && !ocupadas.has(acolito.nome)) {
                     funcoes.credencia.push(acolito);
+                    ocupadas.add(acolito.nome);
                 }
             });
 
-            if (funcoes.cerimoniario || funcoes.librifera || funcoes.credencia.length > 0) {
-                const alocados = [
-                    funcoes.cerimoniario,
-                    funcoes.librifera,
-                    ...funcoes.credencia,
-                    funcoes.turibulo,
-                    funcoes.naveta
-                ];
-
-                alocados.forEach(acolito => {
+            [funcoes.cerimoniario, funcoes.librifera, ...funcoes.credencia, funcoes.turibulo, funcoes.naveta]
+                .forEach(acolito => {
                     if (acolito) {
                         contadorServicos[acolito.nome].total++;
-                        contadorServicos[acolito.nome].funcoes[acolito.funcao] = 
-                            (contadorServicos[acolito.nome].funcoes[acolito.funcao] || 0) + 1;
-
-                        contadorServicos[acolito.nome].escaladoMes = true;
-
-                        if (!historicoHorarios[acolito.nome]) {
-                            historicoHorarios[acolito.nome] = {};
-                        }
-                        historicoHorarios[acolito.nome].ultimaEscala = horario.data;
-
+                        contadorServicos[acolito.nome].funcoes[horario.funcao] = 
+                            (contadorServicos[acolito.nome].funcoes[horario.funcao] || 0) + 1;
                         cacheAlocadosNoHorario.add(acolito.nome);
                     }
                 });
-            }
 
             return { ...horario, funcoes };
         });
 
-        // Resetar a flag "escaladoMes" após a alocação de todos os acólitos
-        for (const acolito of acolitosImpedimentos) {
-            contadorServicos[acolito.nome].escaladoMes = false;
-        }
-
         return missa;
     }
 
-    return missas.map(missa => alocarAcólitosBalanceados(missa));
+    const resultado = missas.map(missa => alocarAcólitosBalanceados(missa));
+    return resultado;
 }
 
 async function gerarPDF() {
