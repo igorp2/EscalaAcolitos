@@ -105,58 +105,6 @@
         </div>
 
         <script>
-            // Vetor com os dados de nomes e preferências (true para preferido, false para não preferido)
-            let missas = []
-            let alocacao = []
-            const nomesMasculinos = [
-                "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio", 
-                "Igor", "João Pedro", "Josué", "Paulo"
-            ];
-
-            const nomesFemininos = [
-                "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
-                "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
-                "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
-                "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
-            ];
-
-            const acolitosImpedimentos = [
-                { nome: "Ana Luiza", impedimentos: [] },
-                { nome: "Arthur", impedimentos: [] },
-                { nome: "Beatriz", impedimentos: [] },
-                { nome: "Brunna", impedimentos: [] },
-                { nome: "Camille", impedimentos: [] },
-                { nome: "Carlos", impedimentos: [] },
-                { nome: "Chrisllayla", impedimentos: [] },
-                { nome: "Daniel", impedimentos: [] },
-                { nome: "Dionísio", impedimentos: [] },
-                { nome: "Élio", impedimentos: [] },
-                { nome: "Ester", impedimentos: [] },
-                { nome: "Fernanda", impedimentos: [] },
-                { nome: "Gabriel Nunes", impedimentos: [] },
-                { nome: "Gabriel Olímpio", impedimentos: [] },
-                { nome: "Gabriella", impedimentos: [] },
-                { nome: "Iara", impedimentos: [] },
-                { nome: "Igor", impedimentos: [] },
-                { nome: "Jamilly Alves", impedimentos: [] },
-                { nome: "Jamilly Riguete", impedimentos: [] },
-                { nome: "João Pedro", impedimentos: [] },
-                { nome: "Josué", impedimentos: [] },
-                { nome: "Larissa de Fátima", impedimentos: [] },
-                { nome: "Larissa Pinheiro", impedimentos: [] },
-                { nome: "Laryssa", impedimentos: [] },
-                { nome: "Leandra", impedimentos: [] },
-                { nome: "Maria Clara", impedimentos: [] },
-                { nome: "Maria Luiza", impedimentos: [] },
-                { nome: "Mariana", impedimentos: [] },
-                { nome: "Milene", impedimentos: [] },
-                { nome: "Natally", impedimentos: [] },
-                { nome: "Patrícia", impedimentos: [] },
-                { nome: "Paulo", impedimentos: [] },
-                { nome: "Sabrina", impedimentos: [] },
-                { nome: "Thais", impedimentos: [] },
-                { nome: "Vitoria", impedimentos: [] }
-            ];
             // Adiciona evento para enviar o formulário e chamar funções
             const form = document.getElementById("escalaForm");
             form.addEventListener("submit", function(event) {
