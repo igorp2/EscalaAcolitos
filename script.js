@@ -680,7 +680,51 @@ function alocarAcolitosPorFuncao(missas) {
     }       
    
     const resultado = missas.map(missa => alocarAcólitosBalanceados(missa));
-    return resultado;
+
+    // Função para verificar acólitos com 0 escalações
+    function verificarAcolitosZeroEscalacoes() {
+        const acolitosZeroEscalacoes = [];
+
+        // Percorre todos os acólitos no contadorServicos e verifica os com 0 escalações
+        for (const acolitoNome in contadorServicos) {
+            const acolito = contadorServicos[acolitoNome];
+            if (acolito.total === 0) {
+                acolitosZeroEscalacoes.push(acolitoNome);
+            }
+        }
+
+        return acolitosZeroEscalacoes;
+    }
+
+    // Função para verificar se os acólitos com 0 escalações tinham disponibilidade
+    function verificarDisponibilidadeZeroEscalados(acolitosZeroEscalacoes, missas) {
+        const naoEscalados = [];
+        acolitosZeroEscalacoes.forEach(nome => {
+            const acolito = acolitosImpedimentos.find(a => a.nome === nome);
+            let disponibilidade = false;
+
+            // Percorre as missas para verificar a disponibilidade do acólito
+            missas.forEach(missa => {
+                missa.horarios.forEach(horario => {
+                    if (verificarDisponibilidade(acolito, missa, horario)) {
+                        disponibilidade = true; // Acólito estava disponível em pelo menos um horário
+                    }
+                });
+            });
+
+            // Exibe a informação sobre a disponibilidade
+            if (disponibilidade) {
+                naoEscalados.push(nome);
+            } 
+        });
+        return naoEscalados;
+    }
+
+    // Após alocar os acólitos, execute essas funções:
+    const acolitosZeroEscalacoes = verificarAcolitosZeroEscalacoes();
+    const naoEscalados = verificarDisponibilidadeZeroEscalados(acolitosZeroEscalacoes, missas);
+
+    return { resultado, naoEscalados };
 }
 
 async function gerarPDF() {
@@ -696,7 +740,13 @@ async function gerarPDF() {
     img.onload = async function () {
         const anoAtual = new Date().getFullYear();
 
-        alocacao = alocarAcolitosPorFuncao(missas);
+        // Verificar sem mesmo com disponibilidade alguém não tenha sido escalado
+        naoEscalados = ['']
+        while(naoEscalados.length != 0) {
+            escala = alocarAcolitosPorFuncao(missas);
+            alocacao = escala.resultado;
+            naoEscalados = escala.naoEscalados;
+        }  
 
         // Definindo a largura da página
         var larguraPagina = doc.internal.pageSize.width;
