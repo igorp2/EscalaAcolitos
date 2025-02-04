@@ -720,11 +720,20 @@ function alocarAcolitosPorFuncao(missas) {
         return naoEscalados;
     }
 
+    // Calcular a soma total de quantas vezes cada acólito foi escalado
+    const totalEscalacoes = Object.keys(contadorServicos).reduce((acc, acolitoNome) => {
+        acc[acolitoNome] = contadorServicos[acolitoNome].total;
+        return acc;
+    }, {});
+
+    // Somar todos os valores de total de escalações para obter o total geral
+    const totalEscalacoesFinal = Object.values(totalEscalacoes).reduce((acc, total) => acc + total, 0);
+
     // Após alocar os acólitos, execute essas funções:
     const acolitosZeroEscalacoes = verificarAcolitosZeroEscalacoes();
     const naoEscalados = verificarDisponibilidadeZeroEscalados(acolitosZeroEscalacoes, missas);
 
-    return { resultado, naoEscalados };
+    return { resultado, naoEscalados, totalEscalacoesFinal };
 }
 
 async function gerarPDF() {
@@ -740,12 +749,17 @@ async function gerarPDF() {
     img.onload = async function () {
         const anoAtual = new Date().getFullYear();
 
+        escala = alocarAcolitosPorFuncao(missas);
+        alocacao = escala.resultado;
+        naoEscalados = escala.naoEscalados;
+        totalEscalacoes = escala.totalEscalacoesFinal;
+
         // Verificar sem mesmo com disponibilidade alguém não tenha sido escalado
-        naoEscalados = ['']
-        while(naoEscalados.length != 0) {
+        while(naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
             escala = alocarAcolitosPorFuncao(missas);
             alocacao = escala.resultado;
             naoEscalados = escala.naoEscalados;
+            totalEscalacoes = escala.totalEscalacoesFinal;
         }  
 
         // Definindo a largura da página
