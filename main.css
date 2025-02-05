@@ -188,3 +188,33 @@ input[type="checkbox"]:checked::before {
         align-items: center; /* Alinha os itens à esquerda */
     }
 }
+
+#domingosTabela {
+    width: 100%;
+    min-width: 300px;
+    border-collapse: collapse;
+}
+
+#domingosTabela thead {
+    position: sticky;
+    top: -1px;
+    z-index: 2; /* Maior que o tbody */
+
+}
+
+#tabelaContainer table{
+    width: 100%;
+    overflow-x: auto;
+    max-height: 500px; 
+    position: relative; 
+}
+
+#domingosTabela tbody {
+    position: relative; /* Para garantir que o tbody não sobrescreva o thead */
+    z-index: 1;
+}
+
+*{
+    scrollbar-width: thin;          
+    scrollbar-color: #0056b3 #b7d7fa;   
+}

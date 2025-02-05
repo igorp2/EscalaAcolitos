@@ -53,7 +53,7 @@ const acolitosImpedimentos = [
 ];
 
 const acolitosTuribulo = [
-    "Arthur", "Carlos", "Daniel", "Dionísio", "Gabriel Nunes","João Pedro", "Paulo", "Maria Luiza", "Ester", "Laryssa Lopes"
+    "Daniel", "Dionísio", "Gabriel Nunes","João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais"
 ];
 
 const acolitosNaveta = [
@@ -214,7 +214,9 @@ function confirmacaoDomingo() {
     const tabelaConfirmacaoHeader = document.querySelector("#confirmacaoTabela thead");
     const domingosDiv = document.getElementById("domingosDiv")
     const gerarEscala = document.getElementById("gerarEscala")
-   
+    const domingosTabela = document.getElementById("domingosTabela");
+    
+    domingosTabela.style.display = "none";
     gerarEscala.style.display = "none";
     domingosDiv.style.display = "none";
     divConfirmacao.style.height = "auto";
@@ -318,7 +320,9 @@ function mostrarDomingos() {
     const domingosDiv = document.getElementById("domingosDiv")
     const mesSelecionado = document.getElementById("meses").value;
     const divDomingos = document.getElementById("domingosDiv");
-
+    const domingosTabela = document.getElementById("domingosTabela");
+    
+    domingosTabela.style.display = "block";
     domingosDiv.style.display = "block";
     document.getElementById("mesSelecionado").innerText = mesSelecionado;
 

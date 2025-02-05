@@ -69,7 +69,7 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <div id="mostrarDomingos" style="display:none;">
+            <div id="mostrarDomingos" style="display:none; margin-top: -20px;">
                 <button onclick="confirmacaoDomingo()">Confirmar Missas às 7h</button>
             </div>
 
@@ -86,9 +86,11 @@
                 <button onclick="mostrarDomingos()">Confirmar Missas</button>
             </div>
             
-            <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; overflow-x: auto; max-width: 100%;">
+            <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; max-width: 100%;">
                 <h3>Impedimentos de <span id="mesSelecionado"></span></h3>
-                <table id="domingosTabela">
+            </div>
+            <div id="tabelaContainer" style="width: fit-content; text-align: center; display: inline-block;">
+                <table id="domingosTabela" style="transition: height 0.3s, opacity 0.3s; width: 100%; margin: -20px 0 20px 0;">
                     <thead>
                         <tr>
                             <th>Nome</th>
@@ -99,6 +101,7 @@
                     </tbody>
                 </table>
             </div>
+            
             <div id="gerarEscala" style="display:none; margin-bottom: 25px;">
                 <button onclick="gerarPDF()">Confirmar Impedimentos e Gerar Escala</button>
             </div>
@@ -109,9 +112,11 @@
             const form = document.getElementById("escalaForm");
             form.addEventListener("submit", function(event) {
                 event.preventDefault(); // Impede o envio do formulário
-                gerarPDF(); // Gera o PDF
-                
+                gerarPDF(); // Gera o PDF              
             });
+
+            const domingosTabela = document.getElementById("domingosTabela");
+            domingosTabela.style.display = "none";
         </script>
     </body>
 </html>
