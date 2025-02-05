@@ -89,9 +89,9 @@
             <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; max-width: 100%;">
                 <h3>Impedimentos de <span id="mesSelecionado"></span></h3>
             </div>
-            <div id="tabelaContainer" style="width: fit-content; text-align: center; display: inline-block;">
-                <table id="domingosTabela" style="transition: height 0.3s, opacity 0.3s; width: 100%; margin: -20px 0 20px 0;">
-                    <thead>
+            <div id="tabelaContainer" style="width: 100%; text-align: center; overflow-x: auto;">
+                <table id="domingosTabela" style="transition: height 0.3s, opacity 0.3s; width: 100%; margin: -20px 0 20px 0; table-layout: fixed;">
+                    <thead style="position: sticky; top: 0; background-color: white; z-index: 10;">
                         <tr>
                             <th>Nome</th>
                         </tr>
@@ -101,6 +101,7 @@
                     </tbody>
                 </table>
             </div>
+            
             
             <div id="gerarEscala" style="display:none; margin-bottom: 25px;">
                 <button onclick="gerarPDF()">Confirmar Impedimentos e Gerar Escala</button>

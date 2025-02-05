@@ -189,6 +189,17 @@ input[type="checkbox"]:checked::before {
     }
 }
 
+@media(min-width: 960px) {
+    #tabelaContainer {
+        display: inline-block;
+        width: fit-content !important;
+    }
+}
+
+#tabelaContainer {
+    padding-top: 20px;
+}
+
 #domingosTabela {
     width: 100%;
     min-width: 300px;
@@ -199,7 +210,6 @@ input[type="checkbox"]:checked::before {
     position: sticky;
     top: -1px;
     z-index: 2; /* Maior que o tbody */
-
 }
 
 #tabelaContainer table{
