@@ -82,16 +82,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("meses").addEventListener("change", function () {
         const selectElement = document.getElementById("meses");
         const selectedValue = selectElement.value; // Valor da opção selecionada
-        const divTabelaInicial = document.getElementById("tabelaInicialDiv");
-        const domingosDiv = document.getElementById("domingosDiv");
+        const divTabelaInicial = document.getElementById("tabelaInicialDiv");        
         const mostrarDomingos = document.getElementById("mostrarDomingos");
         const gerarEscala = document.getElementById("gerarEscala");
         const confirmacaoDiv = document.getElementById("confirmacaoDiv");
         const mostrarDomingosConfirmado = document.getElementById("mostrarDomingosConfirmado");
         const escalaForm = document.getElementById("escalaForm");
 
-        divTabelaInicial.style.height = "auto";
-        domingosDiv.style.display = "none";
+        divTabelaInicial.style.height = "auto";        
         mostrarDomingos.style.display = "none";
         gerarEscala.style.display = "none";
         confirmacaoDiv.style.display = "none";
@@ -187,13 +185,13 @@ function mostrarTabelaInicial() {
     divTabelaInicial.style.opacity = 1;
 }
 
-function confirmacaoDomingo() {  
+function confirmacaoDomingo() {
     let domingosFormatados = domingos.map(data => {
         const dia = data.getDate();
         const mes = data.getMonth() + 1; // Meses começam do zero, então somamos 1
         const horarios = [19.5]; // Todos têm missa às 19:30
 
-        // Adiciona horário das 7h no início se estiver em `domingosComMissa7h`
+        // Adiciona horário das 7h no início se estiver em domingosComMissa7h
         if (domingosComMissa7h.includes(dia)) {
             horarios.unshift(7);
         }
@@ -212,13 +210,11 @@ function confirmacaoDomingo() {
     const divConfirmacaoButton = document.getElementById("mostrarDomingosConfirmado");
     const tabelaConfirmacaoBody = document.querySelector("#confirmacaoTabela tbody");
     const tabelaConfirmacaoHeader = document.querySelector("#confirmacaoTabela thead");
-    const domingosDiv = document.getElementById("domingosDiv")
-    const gerarEscala = document.getElementById("gerarEscala")
+    const gerarEscala = document.getElementById("gerarEscala");
     const domingosTabela = document.getElementById("domingosTabela");
-    
+
     domingosTabela.style.display = "none";
     gerarEscala.style.display = "none";
-    domingosDiv.style.display = "none";
     divConfirmacao.style.height = "auto";
     tabelaConfirmacaoBody.innerHTML = "";
     tabelaConfirmacaoHeader.innerHTML = "";
@@ -248,6 +244,11 @@ function confirmacaoDomingo() {
 
     tabelaConfirmacaoHeader.appendChild(headerRow);
 
+    // Função para atualizar o estado do checkbox "Marcar Todos" da linha
+    function atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxTuribulo, checkboxMozeta) {
+        checkboxMarcarTodosLinha.checked = checkboxTuribulo.checked && checkboxMozeta.checked;
+    }
+
     // Preencher a tabela com os dados do JSON
     missas.forEach(({ dia, mes, horarios }) => {
         horarios.forEach(horarioObj => {
@@ -256,7 +257,7 @@ function confirmacaoDomingo() {
             const tr = document.createElement("tr");
 
             const tdDia = document.createElement("td");
-            tdDia.textContent = `${dia.toString().padStart(2, '0')}/${mes.toString().padStart(2, '0')}`
+            tdDia.textContent = `${dia.toString().padStart(2, '0')}/${mes.toString().padStart(2, '0')}`;
             tr.appendChild(tdDia);
 
             const tdHorario = document.createElement("td");
@@ -272,6 +273,7 @@ function confirmacaoDomingo() {
 
             checkboxTuribulo.addEventListener("change", () => {
                 horarioObj.turibulo = checkboxTuribulo.checked;
+                atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxTuribulo, checkboxMozeta);
             });
 
             tdTuribulo.appendChild(checkboxTuribulo);
@@ -286,6 +288,7 @@ function confirmacaoDomingo() {
 
             checkboxMozeta.addEventListener("change", () => {
                 horarioObj.mozeta = checkboxMozeta.checked;
+                atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxTuribulo, checkboxMozeta);
             });
 
             tdMozeta.appendChild(checkboxMozeta);
@@ -296,16 +299,22 @@ function confirmacaoDomingo() {
             const checkboxMarcarTodosLinha = document.createElement("input");
             checkboxMarcarTodosLinha.type = "checkbox";
 
+            // Quando "Marcar Todos" for alterado, marca/desmarca Turíbulo e Mozeta
             checkboxMarcarTodosLinha.addEventListener("change", () => {
                 checkboxTuribulo.checked = checkboxMarcarTodosLinha.checked;
                 checkboxMozeta.checked = checkboxMarcarTodosLinha.checked;
 
                 horarioObj.turibulo = checkboxMarcarTodosLinha.checked;
                 horarioObj.mozeta = checkboxMarcarTodosLinha.checked;
+
+                atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxTuribulo, checkboxMozeta);
             });
 
             tdMarcarTodos.appendChild(checkboxMarcarTodosLinha);
             tr.appendChild(tdMarcarTodos);
+
+            // Atualiza o estado de "Marcar Todos" ao carregar a linha
+            atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxTuribulo, checkboxMozeta);
 
             tabelaConfirmacaoBody.appendChild(tr);
         });
@@ -315,20 +324,17 @@ function confirmacaoDomingo() {
     divConfirmacaoButton.style.display = "block";
 }
 
-
 function mostrarDomingos() {
-    const domingosDiv = document.getElementById("domingosDiv")
-    const mesSelecionado = document.getElementById("meses").value;
-    const divDomingos = document.getElementById("domingosDiv");
+    const mesSelecionado = document.getElementById("meses").value;    
     const domingosTabela = document.getElementById("domingosTabela");
-    
-    domingosTabela.style.display = "block";
-    domingosDiv.style.display = "block";
+
+    domingosTabela.style.display = "block";    
     document.getElementById("mesSelecionado").innerText = mesSelecionado;
 
+    const impedimentos = document.getElementById("impedimentos"); 
+    impedimentos.style.display = "ruby-text";
+
     if (!mesSelecionado) {
-        divDomingos.style.height = "0px"; // Reduz a altura para ocultar
-        divDomingos.style.opacity = 0; // Torna a div invisível
         return;
     }
 
@@ -401,6 +407,11 @@ function mostrarDomingos() {
         tabelaSubHeader.appendChild(thHorario1930);
     });
 
+    // Função para atualizar o checkbox "Marcar Todos" da linha
+    function atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxes) {
+        checkboxMarcarTodosLinha.checked = checkboxes.every(checkbox => checkbox.checked);
+    }
+
     acolitosImpedimentos.forEach(acolito => {
         const tr = document.createElement("tr");
 
@@ -438,6 +449,9 @@ function mostrarDomingos() {
         tdMarcarTodos.appendChild(checkboxMarcarTodos);
         tr.appendChild(tdMarcarTodos);
 
+        // Array para armazenar os checkboxes de cada dia
+        const checkboxes = [];
+
         // Criar checkboxes para cada domingo
         domingos.forEach(data => {
             const dia = data.getDate();
@@ -450,10 +464,12 @@ function mostrarDomingos() {
 
                 checkbox7h.addEventListener("change", () => {
                     atualizarCheckboxImpedimento(acolito, dia, 7, checkbox7h.checked);
+                    atualizarMarcarTodosLinha(checkboxMarcarTodos, checkboxes);
                 });
 
                 tdDia7h.appendChild(checkbox7h);
                 tr.appendChild(tdDia7h);
+                checkboxes.push(checkbox7h);
             }
 
             const tdDia1930 = document.createElement("td");
@@ -463,17 +479,17 @@ function mostrarDomingos() {
 
             checkbox1930.addEventListener("change", () => {
                 atualizarCheckboxImpedimento(acolito, dia, 19.5, checkbox1930.checked);
+                atualizarMarcarTodosLinha(checkboxMarcarTodos, checkboxes);
             });
 
             tdDia1930.appendChild(checkbox1930);
             tr.appendChild(tdDia1930);
+            checkboxes.push(checkbox1930);
         });
 
         tabelaBody.appendChild(tr);
     });
 
-    divDomingos.style.height = divDomingos.scrollHeight + "px";
-    divDomingos.style.opacity = 1;
     const gerarEscala = document.getElementById("gerarEscala");
     gerarEscala.style.display = "block";
 }
@@ -489,7 +505,6 @@ function atualizarCheckboxImpedimento(acolito, dia, horario, marcar) {
         acolito.impedimentos = acolito.impedimentos.filter(imp => !(imp.dia === dia && imp.horario === horario));
     }
 }
-
 
 // Função para consultar a API e obter a celebração litúrgica
 async function getCelebracaoLiturgica(data) {

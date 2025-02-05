@@ -15,27 +15,7 @@
             <h2>Escala Mensal</h2>
             <h3>Ministério de Acólitos</h3>
             <img src="icone-sem-fundo.png" style="width: 40%; margin-bottom: 20px;">
-        
-            <!-- Botão para controlar a visibilidade -->
-            <!-- <div id="div_botao">
-                <button id="botao" onclick="toggleDiv()">Ver Acólitos</button>
-            </div>
-        
-            <div id="conteudo" style="overflow-x: auto; max-width: 100%;">
-            <h3>Disponibilidade de Horários</h3>
-                <table id="escalaTabela">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>7:00</th>
-                        <th>19:30</th>
-                    </tr>
-                </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
-            </div> -->
+    
             <form id="escalaForm" style="margin-bottom: -60px;">
                 <div class="input-group">
                     <label for="meses">Selecione o mês:</label>
@@ -86,10 +66,8 @@
                 <button onclick="mostrarDomingos()">Confirmar Missas</button>
             </div>
             
-            <div id="domingosDiv" style="transition: height 0.3s, opacity 0.3s; max-width: 100%;">
-                <h3>Impedimentos de <span id="mesSelecionado"></span></h3>
-            </div>
             <div id="tabelaContainer" style="width: 100%; text-align: center; overflow-x: auto;">
+                <h3 id="impedimentos" style="display: none; margin: 20px 0;">Impedimentos de <span id="mesSelecionado"></span></h3>
                 <table id="domingosTabela" style="transition: height 0.3s, opacity 0.3s; width: 100%; margin: -20px 0 20px 0; table-layout: fixed;">
                     <thead style="top: -1px;">
                         <tr>
@@ -102,20 +80,12 @@
                 </table>
             </div>
             
-            
             <div id="gerarEscala" style="display:none; margin-bottom: 25px;">
                 <button onclick="gerarPDF()">Confirmar Impedimentos e Gerar Escala</button>
             </div>
         </div>
 
         <script>
-            // Adiciona evento para enviar o formulário e chamar funções
-            const form = document.getElementById("escalaForm");
-            form.addEventListener("submit", function(event) {
-                event.preventDefault(); // Impede o envio do formulário
-                gerarPDF(); // Gera o PDF              
-            });
-
             const domingosTabela = document.getElementById("domingosTabela");
             domingosTabela.style.display = "none";
         </script>
