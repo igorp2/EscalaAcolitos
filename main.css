@@ -228,3 +228,55 @@ input[type="checkbox"]:checked::before {
     scrollbar-width: thin;          
     scrollbar-color: #0056b3 #b7d7fa;   
 }
+
+
+label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0056b3;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="date"] {
+    appearance: none;
+    background-color: #ffffff;
+    border: 2px solid #007bff;
+    color: rgb(17, 14, 117);
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 250px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+#campoEscala {
+    appearance: none;
+    background-color: #ffffff;
+    border: 2px solid #007bff;
+    color: rgb(17, 14, 117);
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 8px;
+    width: 60%;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    font-family: Arial, sans-serif;
+}
+
+input[type="date"]:hover {
+    border-color: #0056b3;
+}
+
+input[type="date"]:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(24%) sepia(96%) saturate(452%) hue-rotate(187deg) brightness(90%) contrast(99%);
+    cursor: pointer;
+}

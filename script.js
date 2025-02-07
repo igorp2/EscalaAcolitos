@@ -3,14 +3,14 @@ let missas = []
 let alocacao = []
 
 const nomesMasculinos = [
-    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio", 
+    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
     "Igor", "João Pedro", "Josué", "Paulo"
 ];
 
 const nomesFemininos = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
+    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
+    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
     "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
 ];
 
@@ -53,25 +53,25 @@ const acolitosImpedimentos = [
 ];
 
 const acolitosTuribulo = [
-    "Daniel", "Dionísio", "Gabriel Nunes","João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais"
+    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais"
 ];
 
 const acolitosNaveta = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
+    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
+    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
     "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
 ];
 
 const acolitosCerimoniario = [
-    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio", 
+    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
     "Igor", "João Pedro", "Josué", "Paulo"
 ];
 
 const acolitosLibrifera = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester", 
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete", 
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara", 
+    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
+    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
     "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
 ];
 
@@ -82,27 +82,31 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("meses").addEventListener("change", function () {
         const selectElement = document.getElementById("meses");
         const selectedValue = selectElement.value; // Valor da opção selecionada
-        const divTabelaInicial = document.getElementById("tabelaInicialDiv");        
+        const divTabelaInicial = document.getElementById("tabelaInicialDiv");
         const mostrarDomingos = document.getElementById("mostrarDomingos");
         const gerarEscala = document.getElementById("gerarEscala");
         const confirmacaoDiv = document.getElementById("confirmacaoDiv");
         const mostrarDomingosConfirmado = document.getElementById("mostrarDomingosConfirmado");
         const escalaForm = document.getElementById("escalaForm");
+        const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
+        const tabelaContainer = document.getElementById("tabelaContainer");
 
-        divTabelaInicial.style.height = "auto";        
+        tabelaContainer.style.display = "none";
+        confirmarImpedimentos.style.display = "none";
+        divTabelaInicial.style.height = "auto";
         mostrarDomingos.style.display = "none";
         gerarEscala.style.display = "none";
         confirmacaoDiv.style.display = "none";
         mostrarDomingosConfirmado.style.display = "none";
         escalaForm.style.marginBottom = "20px";
-        
+
         if (selectedValue === "") {
             escalaForm.style.marginBottom = "30px";
             divTabelaInicial.style.display = "none";
         } else {
             mostrarTabelaInicial();
         }
-       
+
     });
 });
 
@@ -116,7 +120,8 @@ function mostrarTabelaInicial() {
     const mostrarDomingosConfirmado = document.getElementById("mostrarDomingosConfirmado");
     const tabelaContainer = document.getElementById("tabelaContainer");
     const gerarEscala = document.getElementById("gerarEscala");
-    
+    const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
+
     const mostrarDomingos = document.getElementById("mostrarDomingos");
     mostrarDomingos.style.display = "block";
 
@@ -172,10 +177,11 @@ function mostrarTabelaInicial() {
 
         // Adiciona evento para atualizar os domingos com missa às 7h
         checkbox.addEventListener("change", () => {
+            confirmarImpedimentos.style.display = "none";
             mostrarDomingosConfirmado.style.display = "none";
             confirmacaoDiv.style.display = "none";
             gerarEscala.style.display = "none";
-            tabelaContainer.style.display = "none";
+            tabelaContainer.style.setProperty("display", "none", "important");
 
             if (checkbox.checked) {
                 domingosComMissa7h.push(data.getDate());
@@ -221,7 +227,8 @@ function confirmacaoDomingo() {
     const tabelaConfirmacaoHeader = document.querySelector("#confirmacaoTabela thead");
     const gerarEscala = document.getElementById("gerarEscala");
     const domingosTabela = document.getElementById("domingosTabela");
-    const impedimentos = document.getElementById("impedimentos"); 
+    const impedimentos = document.getElementById("impedimentos");
+    const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
 
     impedimentos.style.display = "none";
     domingosTabela.style.display = "none";
@@ -282,12 +289,13 @@ function confirmacaoDomingo() {
             checkboxTuribulo.classList.add("turibulo");
             checkboxTuribulo.checked = turibulo;
             const domingosTabela = document.getElementById("domingosTabela");
-            const impedimentos = document.getElementById("impedimentos"); 
-            const gerarEscala = document.getElementById("gerarEscala"); 
+            const impedimentos = document.getElementById("impedimentos");
+            const gerarEscala = document.getElementById("gerarEscala");
 
             checkboxTuribulo.addEventListener("change", () => {
                 horarioObj.turibulo = checkboxTuribulo.checked;
 
+                confirmarImpedimentos.style.display = "none";
                 gerarEscala.style.display = "none";
                 impedimentos.style.display = "none";
                 domingosTabela.style.display = "none";
@@ -308,6 +316,7 @@ function confirmacaoDomingo() {
             checkboxMozeta.addEventListener("change", () => {
                 horarioObj.mozeta = checkboxMozeta.checked;
 
+                confirmarImpedimentos.style.display = "none";
                 gerarEscala.style.display = "none";
                 impedimentos.style.display = "none";
                 domingosTabela.style.display = "none";
@@ -330,7 +339,8 @@ function confirmacaoDomingo() {
 
                 horarioObj.turibulo = checkboxMarcarTodosLinha.checked;
                 horarioObj.mozeta = checkboxMarcarTodosLinha.checked;
-            
+
+                confirmarImpedimentos.style.display = "none";
                 gerarEscala.style.display = "none";
                 impedimentos.style.display = "none";
                 domingosTabela.style.display = "none";
@@ -353,14 +363,14 @@ function confirmacaoDomingo() {
 }
 
 function mostrarDomingos() {
-    const mesSelecionado = document.getElementById("meses").value;    
+    const mesSelecionado = document.getElementById("meses").value;
     const domingosTabela = document.getElementById("domingosTabela");
     const tabelaContainer = document.getElementById("tabelaContainer");
-    tabelaContainer.style.display = "block";  
-    domingosTabela.style.display = "block";    
+    tabelaContainer.style.display = "block";
+    domingosTabela.style.display = "block";
     document.getElementById("mesSelecionado").innerText = mesSelecionado;
 
-    const impedimentos = document.getElementById("impedimentos"); 
+    const impedimentos = document.getElementById("impedimentos");
     impedimentos.style.display = "ruby-text";
 
     if (!mesSelecionado) {
@@ -519,8 +529,10 @@ function mostrarDomingos() {
         tabelaBody.appendChild(tr);
     });
 
-    const gerarEscala = document.getElementById("gerarEscala");
-    gerarEscala.style.display = "block";
+    // const gerarEscala = document.getElementById("gerarEscala");
+    // gerarEscala.style.display = "block";
+    const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
+    confirmarImpedimentos.style.display = "block";
 }
 
 function atualizarCheckboxImpedimento(acolito, dia, horario, marcar) {
@@ -567,7 +579,7 @@ function ajustarCelebracao(celebracao) {
 // Função para verificar se o acólito pode servir em um determinado dia e horário
 function verificarDisponibilidade(acolito, missa, horario) {
     // Verifica se o acólito tem algum impedimento para o dia e horário específicos
-    return !acolito.impedimentos.some(impedimento => 
+    return !acolito.impedimentos.some(impedimento =>
         impedimento.dia === missa.dia && impedimento.horario === horario.hora
     );
 }
@@ -575,9 +587,9 @@ function verificarDisponibilidade(acolito, missa, horario) {
 // Função principal para alocar acólitos de forma equitativa e aleatória
 function alocarAcolitosPorFuncao(missas) {
     const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
-        acc[acolito.nome] = { 
-            total: 0, 
-            funcoes: {}, 
+        acc[acolito.nome] = {
+            total: 0,
+            funcoes: {},
             finaisDeSemana: new Set(),
             diasEscalados: new Set() // Adiciona esta propriedade
         };
@@ -603,28 +615,28 @@ function alocarAcolitosPorFuncao(missas) {
     function verificarEscaladoNoMesmoDia(acolito, missa) {
         const dataMissa = new Date(missa.data);
         const diaAtual = `${dataMissa.getFullYear()}-${(dataMissa.getMonth() + 1).toString().padStart(2, '0')}-${dataMissa.getDate().toString().padStart(2, '0')}`; // Formato YYYY-MM-DD com padding
-    
+
         // Se o acólito já foi escalado nesse dia, então permite múltiplos escalamentos em dias diferentes
         if (contadorServicos[acolito.nome].diasEscalados.has(diaAtual)) {
             return true;  // Permite alocação no mesmo dia
         }
-    
+
         // Marca o acólito como escalado nesse dia
         contadorServicos[acolito.nome].diasEscalados.add(diaAtual);
-    
+
         return true;
     }
 
     function alocarAcólitosBalanceados(missa) {
         const cacheAlocadosNoHorario = new Set();
-    
+
         // Criar um mapa de irmãos para consulta rápida
         const irmaoMap = new Map();
         irmaos.forEach(([irmao1, irmao2]) => {
             irmaoMap.set(irmao1, irmao2);
             irmaoMap.set(irmao2, irmao1);
         });
-    
+
         missa.horarios = missa.horarios.map(horario => {
             let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {
                 return (
@@ -633,29 +645,29 @@ function alocarAcolitosPorFuncao(missas) {
                     verificarEscaladoNoMesmoDia(acolito, missa)
                 );
             });
-    
+
             acolitosParaHorario = embaralhar(priorizarMenosEscalados(acolitosParaHorario));
-    
+
             const funcoes = { cerimoniario: null, librifera: null, credencia: [], turibulo: null, naveta: null };
             const ocupadas = new Set();
             const dataMissa = new Date(missa.data);
             const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
-    
+
             acolitosParaHorario = acolitosParaHorario.sort((a, b) => contadorServicos[a.nome].total - contadorServicos[b.nome].total);
-    
+
             acolitosParaHorario.forEach(acolito => {
                 // Se o acólito já foi escalado, ignorar
                 if (cacheAlocadosNoHorario.has(acolito.nome)) return;
-    
+
                 let irmaoObj = null;
                 if (irmaoMap.has(acolito.nome)) {
                     const irmaoNome = irmaoMap.get(acolito.nome);
                     irmaoObj = acolitosParaHorario.find(a => a.nome === irmaoNome && !cacheAlocadosNoHorario.has(a.nome));
                 }
-    
+
                 let alocado = false;
                 let irmaoAlocado = false;
-    
+
                 // Tentar alocar o acólito principal
                 if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome)) {
                     funcoes.cerimoniario = acolito;
@@ -673,7 +685,7 @@ function alocarAcolitosPorFuncao(missas) {
                     funcoes.credencia.push(acolito);
                     alocado = true;
                 }
-    
+
                 // Se alocou o primeiro, agora tenta alocar o irmão imediatamente
                 if (alocado && irmaoObj) {
                     if (!funcoes.cerimoniario && acolitosCerimoniario.includes(irmaoObj.nome)) {
@@ -693,7 +705,7 @@ function alocarAcolitosPorFuncao(missas) {
                         irmaoAlocado = true;
                     }
                 }
-    
+
                 // Se o irmão não coube, desfaz a alocação do primeiro e continua tentando
                 if (alocado && irmaoObj && !irmaoAlocado) {
                     // Remover o acólito principal da escala e continuar tentando outra configuração
@@ -702,31 +714,31 @@ function alocarAcolitosPorFuncao(missas) {
                     else if (funcoes.turibulo === acolito) funcoes.turibulo = null;
                     else if (funcoes.naveta === acolito) funcoes.naveta = null;
                     else funcoes.credencia = funcoes.credencia.filter(a => a.nome !== acolito.nome);
-    
+
                     return; // Passar para o próximo acólito
                 }
-    
+
                 // Se tudo ocorreu bem, marcar como alocado
                 if (alocado) cacheAlocadosNoHorario.add(acolito.nome);
                 if (irmaoAlocado) cacheAlocadosNoHorario.add(irmaoObj.nome);
             });
-    
+
             [funcoes.cerimoniario, funcoes.librifera, ...funcoes.credencia, funcoes.turibulo, funcoes.naveta]
                 .forEach(acolito => {
                     if (acolito) {
                         contadorServicos[acolito.nome].total++;
-                        contadorServicos[acolito.nome].funcoes[horario.funcao] = 
+                        contadorServicos[acolito.nome].funcoes[horario.funcao] =
                             (contadorServicos[acolito.nome].funcoes[horario.funcao] || 0) + 1;
                         contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual);
                     }
                 });
-    
+
             return { ...horario, funcoes };
         });
-    
+
         return missa;
-    }       
-   
+    }
+
     const resultado = missas.map(missa => alocarAcólitosBalanceados(missa));
 
     // Função para verificar acólitos com 0 escalações
@@ -763,7 +775,7 @@ function alocarAcolitosPorFuncao(missas) {
             // Exibe a informação sobre a disponibilidade
             if (disponibilidade) {
                 naoEscalados.push(nome);
-            } 
+            }
         });
         return naoEscalados;
     }
@@ -789,7 +801,7 @@ async function gerarPDF() {
     const doc = new jsPDF();
 
     // Capturar os dados do formulário
-    const mesSelecionado = document.getElementById("meses").value; 
+    const mesSelecionado = document.getElementById("meses").value;
 
     // Adicionar conteúdo ao PDF
     var img = new Image()
@@ -808,13 +820,15 @@ async function gerarPDF() {
         naoEscalados = escala.naoEscalados;
         totalEscalacoes = escala.totalEscalacoesFinal;
 
+        const dados = document.getElementById("campoEscala").value;
+
         // Verificar sem mesmo com disponibilidade alguém não tenha sido escalado
-        while(naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
+        while (naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
             escala = alocarAcolitosPorFuncao(missas);
             alocacao = escala.resultado;
             naoEscalados = escala.naoEscalados;
             totalEscalacoes = escala.totalEscalacoesFinal;
-        }  
+        }
 
         // Definindo a largura da página
         var larguraPagina = doc.internal.pageSize.width;
@@ -907,7 +921,47 @@ async function gerarPDF() {
             const diaInfo = missas.find(dia => dia.dia === new Date(domingo).getDate());
             const horarios = diaInfo ? diaInfo.horarios : [];
 
-            const xPos = 15;
+            var xPos = 15;
+
+            if (dados) {
+                // Verifica se o yPos ultrapassou o limite da página, se sim, adiciona uma nova página
+                if (yPos + 40 > maxY) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                const [dia, mes, ano] = dataFormatada.split("/");
+
+                if (parseInt(dados.slice(0, 2)) < parseInt(dia)) {
+                    const linhas = dados.split("\n");
+
+                    // Se houver pelo menos uma linha
+                    if (linhas.length > 0) {
+                        // Define a fonte em negrito para a primeira linha
+                        doc.setFont("helvetica", "bold");
+                        doc.text(linhas[0], xPos, yPos);
+
+                        // Atualiza yPos para a próxima linha
+                        yPos += 5;
+
+                        // Retorna para a fonte normal
+                        doc.setFont("helvetica", "normal");
+
+                        // Percorre e escreve as demais linhas
+                        for (let i = 1; i < linhas.length; i++) {
+                            doc.text(linhas[i], xPos, yPos);
+                            yPos += 5; // Ajuste de espaçamento entre linhas
+                        }
+
+                        yPos += 5;
+                    }
+
+                    // Linha separadora após o texto
+                    doc.line(0, yPos, larguraPagina, yPos);
+
+                    yPos += 10;
+                }
+            }
 
             // Itera sobre os horários para o dia
             horarios.forEach(horarioObj => {
@@ -922,21 +976,19 @@ async function gerarPDF() {
                 }
 
                 doc.setFont("helvetica", "bold");
-            
-            
-                // Verifica se o yPos ultrapassou o limite da página, se sim, adiciona uma nova página
-                if (yPos + 40 > maxY) {
-                    doc.addPage();
-                    yPos = 20;
-                }
-            
 
                 // Verifica se o yPos ultrapassou o limite da página, se sim, adiciona uma nova página
                 if (yPos + 40 > maxY) {
                     doc.addPage();
                     yPos = 20;
                 }
-            
+
+                // Verifica se o yPos ultrapassou o limite da página, se sim, adiciona uma nova página
+                if (yPos + 40 > maxY) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+
                 // Adiciona o texto principal ao documento
                 doc.text(texto, xPos, yPos);
                 yPos += celebracaoTexto ? 15 : 10;
@@ -949,8 +1001,8 @@ async function gerarPDF() {
                 alocacao.forEach(diaAtual => {
                     if (diaAtual.dia === diaInfo.dia) {
                         doc.setFont("helvetica", "normal");
-            
-            
+
+
                         // Itera sobre os horários de cada missa
 
                         // Itera sobre os horários de cada missa
@@ -971,18 +1023,18 @@ async function gerarPDF() {
                                         yPos += 6;
 
                                         detalhe.forEach((credenciado, index) => {
-                                            if (credenciado && credenciado.nome) { 
+                                            if (credenciado && credenciado.nome) {
                                                 // Credenciado válido
-                                                if(nomesFemininos.includes(credenciado.nome)){
+                                                if (nomesFemininos.includes(credenciado.nome)) {
                                                     doc.text(`${credenciado.nome} (${funcaoCredenciaFeminino[index]})`, xPos, yPos);
                                                 }
                                                 else {
                                                     doc.text(`${credenciado.nome} (${funcaoCredenciaMasculino[index]})`, xPos, yPos);
                                                 }
-                                            } 
+                                            }
                                             // Incrementa 5 normalmente
                                             yPos += 5;
-                                    
+
                                             // Se for o último item do array
                                             if (index === detalhe.length - 1 && (horario.turibulo || horario.mozeta)) {
                                                 yPos += 5;
@@ -994,33 +1046,33 @@ async function gerarPDF() {
                                         yPos = verificarLimitePagina(doc, yPos, maxY);
                                         let funcaoNome = "";
                                         // Detalhe válido
-                                        if(funcao == "cerimoniario") {
+                                        if (funcao == "cerimoniario") {
                                             funcaoNome = "Cerimoniário"
                                         }
-                                        else if(funcao == "librifera") {
-                                           funcaoNome = "Librífera";
+                                        else if (funcao == "librifera") {
+                                            funcaoNome = "Librífera";
                                         }
-                                        else if(funcao == "turibulo") {
+                                        else if (funcao == "turibulo") {
                                             funcaoNome = "Turíbulo";
                                         }
-                                        else if(funcao == "naveta") {
-                                           funcaoNome = "Naveta";
+                                        else if (funcao == "naveta") {
+                                            funcaoNome = "Naveta";
                                         }
-                                        
+
                                         doc.text(`${funcaoNome}: ${detalhe.nome}`, xPos, yPos);
                                         // Adiciona o sublinhado manualmente
                                         let textWidth = doc.getTextWidth(funcaoNome + ":");
                                         doc.line(xPos, yPos + 1, xPos + textWidth, yPos + 1);
-                                        
+
                                         if (funcao == "naveta" || funcao == "librifera") {
                                             yPos += 5;
                                         }
-                                        else if(funcao == "turibulo" || funcao == "cerimoniario") {
+                                        else if (funcao == "turibulo" || funcao == "cerimoniario") {
                                             yPos += 1;
                                         }
 
                                         yPos += 5;
-                                    }                                                   
+                                    }
                                 });
                             }
                         });
@@ -1049,7 +1101,6 @@ async function gerarPDF() {
                 yPos += 10;
             });
         }
-
 
         yPos = verificarLimitePagina(doc, yPos, maxY);
 
@@ -1119,6 +1170,105 @@ async function gerarPDF() {
     }
 }
 
+
 function voltarInicio() {
     window.location.reload();
+}
+
+function verificarMissasAdicionais() {
+    const tabelaInicialDiv = document.getElementById("tabelaInicialDiv");
+    const mostrarDomingos = document.getElementById("mostrarDomingos");
+    const confirmacaoDiv = document.getElementById("confirmacaoDiv");
+    const mostrarDomingosConfirmado = document.getElementById("mostrarDomingosConfirmado");
+    const tabelaContainer = document.getElementById("tabelaContainer");
+    const gerarEscala = document.getElementById("gerarEscala");
+    const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
+    const escalaForm = document.getElementById("escalaForm");
+    const missasManuais = document.getElementById("missasManuais");
+    const verificarMissasAdicionais = document.getElementById("verificarMissasAdicionais");
+
+    verificarMissasAdicionais.style.display = "block";
+    tabelaInicialDiv.style.display = "none";
+    mostrarDomingos.style.display = "none";
+    confirmacaoDiv.style.display = "none";
+    mostrarDomingosConfirmado.style.display = "none";
+    tabelaContainer.style.setProperty("display", "none", "important");
+    confirmarImpedimentos.style.display = "none";
+    escalaForm.style.display = "none";
+    missasManuais.style.display = "none";
+    gerarEscala.style.display = "none";
+
+    const mesSelecionado = document.getElementById("meses").value;
+    document.getElementById("mesSelecionadoConfirmarMissasManuais").innerText = mesSelecionado;
+}
+
+function gerarMissasAdicionais() {
+    const tabelaInicialDiv = document.getElementById("tabelaInicialDiv");
+    const mostrarDomingos = document.getElementById("mostrarDomingos");
+    const confirmacaoDiv = document.getElementById("confirmacaoDiv");
+    const mostrarDomingosConfirmado = document.getElementById("mostrarDomingosConfirmado");
+    const tabelaContainer = document.getElementById("tabelaContainer");
+    const gerarEscala = document.getElementById("gerarEscala");
+    const confirmarImpedimentos = document.getElementById("confirmarImpedimentos");
+    const escalaForm = document.getElementById("escalaForm");
+    const missasManuais = document.getElementById("missasManuais");
+    const verificarMissasAdicionais = document.getElementById("verificarMissasAdicionais");
+
+    verificarMissasAdicionais.style.display = "none";
+    tabelaInicialDiv.style.display = "none";
+    mostrarDomingos.style.display = "none";
+    confirmacaoDiv.style.display = "none";
+    mostrarDomingosConfirmado.style.display = "none";
+    tabelaContainer.style.setProperty("display", "none", "important");
+    confirmarImpedimentos.style.display = "none";
+    escalaForm.style.display = "none";
+    missasManuais.style.display = "block";
+    gerarEscala.style.display = "block";
+
+    const mesSelecionado = document.getElementById("meses").value;
+    document.getElementById("mesSelecionadoMissasManuais").innerText = mesSelecionado;
+
+    if (!mesSelecionado) return;
+    const anoAtual = new Date().getFullYear();
+
+    const meses = {
+        "Janeiro": "01",
+        "Fevereiro": "02",
+        "Março": "03",
+        "Abril": "04",
+        "Maio": "05",
+        "Junho": "06",
+        "Julho": "07",
+        "Agosto": "08",
+        "Setembro": "09",
+        "Outubro": "10",
+        "Novembro": "11",
+        "Dezembro": "12"
+    };
+
+    const mes = meses[mesSelecionado];
+
+    const primeiroDia = `${anoAtual}-${mes}-01`;
+    const ultimoDia = new Date(anoAtual, mes, 0).getDate(); // Último dia do mês
+    const ultimoDiaFormatado = `${anoAtual}-${mes}-${ultimoDia}`;
+
+    const inputData = document.getElementById("data");
+    inputData.min = primeiroDia;
+    inputData.max = ultimoDiaFormatado;
+
+    // Opcional: Definir um valor inicial dentro do intervalo
+    inputData.value = primeiroDia;
+
+    document.getElementById("data").addEventListener("change", async function () {
+        const dataSelecionada = this.value;
+        const partesData = dataSelecionada.split('-');
+        const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+
+        const campoEscala = document.getElementById("campoEscala");
+        campoEscala.value = dataFormatada + campoEscala.value.slice(10);
+        campoEscala.style.removeProperty("display");
+
+        const labelCampoEscala = document.getElementById("labelCampoEscala");
+        labelCampoEscala.style.display = "block";
+    });
 }

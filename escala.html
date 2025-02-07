@@ -81,8 +81,26 @@
                     </table>
                 </div>
                 
-                <div id="gerarEscala" style="display:none; margin-bottom: 25px;">
-                    <button onclick="gerarPDF()">Confirmar Impedimentos e Gerar Escala</button>
+                <div id="confirmarImpedimentos" style="display:none; margin-bottom: 25px;">
+                    <button onclick="verificarMissasAdicionais()">Confirmar Impedimentos</button>
+                </div>
+
+                <div id="verificarMissasAdicionais" style="display:none; margin-bottom: 25px;">
+                    <h3 style="margin: 10px 0;">Haverá Outras Celebrações Em <span id="mesSelecionadoConfirmarMissasManuais"></span>?</h3>
+                    <button onclick="gerarMissasAdicionais()" style="margin-right: 20px;">Inserir Escalas Semanais</button>
+                    <button onclick="gerarPDF()">Gerar Escala</button>
+                </div>
+        
+                <div id="missasManuais" style="display: none; flex-direction: column; align-items: center; gap: 8px;">
+                    <h3 style="margin: 20px 0;">Inserir Celebrações Manuais de <span id="mesSelecionadoMissasManuais"></span></h3>
+                    <label for="data">Escolha uma data:</label>
+                    <input type="date" id="data" min="2024-01-01" max="2025-12-31" style="text-align: center;">
+                    
+                    <label id="labelCampoEscala" for="campoAdicional" style="display: none; margin-top: 20px;">Escreva a escala:</label>
+                    <textarea id="campoEscala" style="display: none; height: 100px; resize: vertical;"></textarea>
+                </div>
+                <div id="gerarEscala" style="display:none; margin-bottom: 25px; margin-top: 20px;">
+                    <button onclick="gerarPDF()">Confirmar Dados e Gerar Escala</button>
                 </div>
             </div>
             <div id="gerando" style="display: none;">
