@@ -92,13 +92,28 @@
                 </div>
         
                 <div id="missasManuais" style="display: none; flex-direction: column; align-items: center; gap: 8px;">
-                    <h3 style="margin: 20px 0;">Inserir Celebrações Manuais de <span id="mesSelecionadoMissasManuais"></span></h3>
+                    <h3 style="margin: 20px 0;">Inserir Celebrações Semanais de <span id="mesSelecionadoMissasManuais"></span></h3>
                     <label for="data">Escolha uma data:</label>
                     <input type="date" id="data" min="2024-01-01" max="2025-12-31" style="text-align: center;">
                     
-                    <label id="labelCampoEscala" for="campoAdicional" style="display: none; margin-top: 20px;">Escreva a escala:</label>
-                    <textarea id="campoEscala" style="display: none; height: 37px; resize: none; overflow: hidden;" oninput="ajustarAltura(this)"></textarea>
+                    <label for="campoEscala" style="margin-top: 20px;">Escreva a escala:</label>
+                    <textarea id="campoEscala" style="height: 37px; resize: none; overflow: hidden;" oninput="ajustarAltura(this)"></textarea>
+                
+                    <div style="display: flex; justify-content: center; margin-top: 10px;">
+                        <button onclick="adicionarCelebracao()">Adicionar Celebração</button>
+                    </div>
+                    <table id="tabelaCelebracoes" border="1" style="margin-top: 30px; text-align: center;">
+                        <tr>
+                            <th>Data</th>
+                            <th>Escala</th>
+                            <th>Ações</th>
+                        </tr>
+                        <tr id="mensagemVazia">
+                            <td colspan="3">Nenhuma celebração adicionada.</td>
+                        </tr>
+                    </table>
                 </div>
+
                 <div id="gerarEscala" style="display:none; margin-bottom: 25px; margin-top: 20px;">
                     <button onclick="gerarPDF()">Confirmar Dados e Gerar Escala</button>
                 </div>
@@ -124,6 +139,68 @@
             function ajustarAltura(elemento) {
                 elemento.style.height = "auto"; // Reseta a altura para calcular corretamente
                 elemento.style.height = (elemento.scrollHeight - 20) + "px"; // Ajusta conforme o conteúdo
+            }
+
+            function adicionarCelebracao() {
+                const data = document.getElementById('data').value;
+                const escala = document.getElementById('campoEscala');
+
+                escala.style.height = "37px";
+
+                if (!data || !escala.value) {
+                    alert('Por favor, preencha todos os campos.');
+                    return;
+                }
+
+                const partes = data.split('-');
+                const dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+                celebracoesSemanais.push({ data: dataFormatada, escala: escala.value });
+
+                // Ordenar o array por data (convertendo para o formato YYYY-MM-DD para comparação)
+                celebracoesSemanais.sort((a, b) => {
+                    const dataA = a.data.split('/').reverse().join('-'); // Converte para YYYY-MM-DD
+                    const dataB = b.data.split('/').reverse().join('-'); // Converte para YYYY-MM-DD
+                    return new Date(dataA) - new Date(dataB);
+                });
+
+                atualizarTabela();
+                document.getElementById('data').value = '';
+                document.getElementById('campoEscala').value = '';
+            }
+
+            function removerLinha(index) {
+                celebracoesSemanais.splice(index, 1);
+                atualizarTabela();
+            }
+
+            function atualizarTabela() {
+                const tabela = document.getElementById('tabelaCelebracoes');
+                tabela.innerHTML = `
+                    <tr>
+                        <th>Data</th>
+                        <th>Escala</th>
+                        <th>Ações</th>
+                    </tr>
+                `;
+
+                if (celebracoesSemanais.length === 0) {
+                    tabela.innerHTML += `
+                        <tr id="mensagemVazia">
+                            <td colspan="3">Nenhuma celebração adicionada.</td>
+                        </tr>
+                    `;
+                } else {
+                    celebracoesSemanais.forEach((celebracao, index) => {
+                        tabela.innerHTML += `
+                            <tr>
+                                <td>${celebracao.data}</td>
+                                <td>${celebracao.escala}</td>
+                                <td><button onclick="removerLinha(${index})" style="margin: 10px !important;">Remover</button></td>
+                            </tr>
+                        `;
+                    });
+                }
             }
         </script>
     </body>
