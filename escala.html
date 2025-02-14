@@ -97,7 +97,7 @@
                     <input type="date" id="data" min="2024-01-01" max="2025-12-31" style="text-align: center;">
                     
                     <label id="labelCampoEscala" for="campoAdicional" style="display: none; margin-top: 20px;">Escreva a escala:</label>
-                    <textarea id="campoEscala" style="display: none; height: 100px; resize: vertical;"></textarea>
+                    <textarea id="campoEscala" style="display: none; height: 37px; resize: none; overflow: hidden;" oninput="ajustarAltura(this)"></textarea>
                 </div>
                 <div id="gerarEscala" style="display:none; margin-bottom: 25px; margin-top: 20px;">
                     <button onclick="gerarPDF()">Confirmar Dados e Gerar Escala</button>
@@ -109,7 +109,7 @@
             <div id="confirmacao" style="display: none;">
                 <h3 style="text-align: center; color: green;">Escala gerada com sucesso!</h3>
                 <div id="gerarEscalaNovamente" style="margin-bottom: 25px;">
-                    <button onclick="gerarPDF()">Gerar Nova Escala com as mesmas configurações</button>
+                    <button onclick="gerarPDF()">Gerar Nova Escala com as Mesmas Configurações</button>
                 </div>
                 <div id="voltarInicio" style="margin-bottom: 25px; margin-top: -15px;">
                     <button onclick="voltarInicio()">Voltar para o Início</button>
@@ -120,6 +120,11 @@
         <script>
             const domingosTabela = document.getElementById("domingosTabela");
             domingosTabela.style.display = "none";
+
+            function ajustarAltura(elemento) {
+                elemento.style.height = "auto"; // Reseta a altura para calcular corretamente
+                elemento.style.height = (elemento.scrollHeight - 20) + "px"; // Ajusta conforme o conteúdo
+            }
         </script>
     </body>
 </html>

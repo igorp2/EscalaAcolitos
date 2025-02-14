@@ -585,17 +585,7 @@ function verificarDisponibilidade(acolito, missa, horario) {
 }
 
 // Função principal para alocar acólitos de forma equitativa e aleatória
-function alocarAcolitosPorFuncao(missas) {
-    const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
-        acc[acolito.nome] = {
-            total: 0,
-            funcoes: {},
-            finaisDeSemana: new Set(),
-            diasEscalados: new Set() // Adiciona esta propriedade
-        };
-        return acc;
-    }, {});
-
+function alocarAcolitosPorFuncao(missas, contadorServicos) {
     function embaralhar(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -814,13 +804,30 @@ async function gerarPDF() {
         const confirmacao = document.getElementById("confirmacao");
         confirmacao.style.display = "none";
         gerando.style.display = "block";
+        
+        const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
+            acc[acolito.nome] = {
+                total: 0,
+                funcoes: {},
+                finaisDeSemana: new Set(),
+                diasEscalados: new Set() // Adiciona esta propriedade
+            };
+            return acc;
+        }, {});
 
-        escala = alocarAcolitosPorFuncao(missas);
+        const dados = document.getElementById("campoEscala").value;
+
+        acolitosImpedimentos.forEach(acolito => {
+            if (dados.includes(acolito.nome)) {
+                contadorServicos[acolito.nome].total += 1;
+            }
+        });
+
+        escala = alocarAcolitosPorFuncao(missas, contadorServicos);
         alocacao = escala.resultado;
         naoEscalados = escala.naoEscalados;
         totalEscalacoes = escala.totalEscalacoesFinal;
 
-        const dados = document.getElementById("campoEscala").value;
 
         // Verificar sem mesmo com disponibilidade alguém não tenha sido escalado
         while (naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
@@ -896,6 +903,7 @@ async function gerarPDF() {
             return yPos;
         }
 
+        var jaAdicionouCelebracao = false;
         for (let i = 0; i < domingos.length; i++) {
             // Verifica o limite da página antes de processar o domingo
             yPos = verificarLimitePagina(doc, yPos, maxY);
@@ -923,13 +931,13 @@ async function gerarPDF() {
 
             var xPos = 15;
 
-            if (dados) {
+            if (dados && !jaAdicionouCelebracao) {
                 // Verifica se o yPos ultrapassou o limite da página, se sim, adiciona uma nova página
                 if (yPos + 40 > maxY) {
                     doc.addPage();
                     yPos = 20;
                 }
-                
+
                 const [dia, mes, ano] = dataFormatada.split("/");
 
                 if (parseInt(dados.slice(0, 2)) < parseInt(dia)) {
@@ -937,6 +945,8 @@ async function gerarPDF() {
 
                     // Se houver pelo menos uma linha
                     if (linhas.length > 0) {
+                        linhas[0] = linhas[0].replace(/-/g, "–");
+
                         // Define a fonte em negrito para a primeira linha
                         doc.setFont("helvetica", "bold");
                         doc.text(linhas[0], xPos, yPos);
@@ -949,17 +959,72 @@ async function gerarPDF() {
 
                         // Percorre e escreve as demais linhas
                         for (let i = 1; i < linhas.length; i++) {
-                            doc.text(linhas[i], xPos, yPos);
-                            yPos += 5; // Ajuste de espaçamento entre linhas
-                        }
-
+                            const palavrasChave = ["LIBRIFERA", "CERIMONIARIO", "CREDENCIA", "TURIBULO", "NAVETA"];
+                            
+                            let linhaOriginal = linhas[i]; // Mantém a versão original da linha
+                            let linhaSemAcento = linhaOriginal.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            let linhaUpper = linhaSemAcento.toUpperCase();
+                            
+                            // Verifica se a linha contém uma palavra-chave
+                            let palavraEncontrada = palavrasChave.find(palavra => linhaUpper.includes(palavra));
+                        
+                            if (linhaUpper === "USAR MOZETA") {
+                                doc.setFont("times", "bolditalic");
+                                doc.text("USAR MOZETA", xPos, yPos);
+                        
+                                doc.setLineWidth(0.5);
+                                let textWidth = doc.getTextWidth("USAR MOZETA");
+                                doc.line(xPos, yPos + 1, xPos + textWidth, yPos + 1);
+                                doc.setLineWidth(0.2);
+                                yPos += 5;
+                                doc.setFont("helvetica", "bold");
+                            }
+                            
+                            else if (palavraEncontrada) {
+                                let indicePalavra = linhaUpper.indexOf(palavraEncontrada);
+                                let antes = linhaOriginal.slice(0, indicePalavra);
+                                let palavraOriginal = linhaOriginal.slice(indicePalavra, indicePalavra + palavraEncontrada.length);
+                                let depois = linhaOriginal.slice(indicePalavra + palavraEncontrada.length);
+                        
+                                // Verifica se o próximo caractere é ":"
+                                let incluirDoisPontos = depois.startsWith(":");
+                                let palavraComSublinhado = incluirDoisPontos ? palavraOriginal + ":" : palavraOriginal;
+                                let depoisCorrigido = incluirDoisPontos ? depois.slice(1) : depois;
+                        
+                                // Exibir parte antes da palavra normalmente
+                                doc.text(antes, xPos, yPos);
+                                let xPalavra = xPos + doc.getTextWidth(antes);
+                        
+                                // Exibir a palavra original sublinhada (com ":" se necessário)
+                                doc.text(palavraComSublinhado, xPalavra, yPos);
+                                let larguraPalavra = doc.getTextWidth(palavraComSublinhado);
+                                doc.line(xPalavra, yPos + 1, xPalavra + larguraPalavra, yPos + 1);
+                        
+                                // Exibir o restante da linha normalmente
+                                doc.text(depoisCorrigido, xPalavra + larguraPalavra, yPos);
+                        
+                                // Verifica se a próxima linha está vazia antes de adicionar yPos extra
+                                if (i + 1 < linhas.length && linhas[i + 1].trim() !== "") {
+                                    yPos += 1;  // Adiciona 1 se a próxima linha NÃO for vazia
+                                }
+                        
+                                yPos += 5; // Continua com o espaçamento normal
+                            } 
+                            
+                            else {
+                                doc.text(linhaOriginal, xPos, yPos);
+                                yPos += 5;
+                            }
+                        }                                              
+                        
                         yPos += 5;
                     }
-
+                    
                     // Linha separadora após o texto
                     doc.line(0, yPos, larguraPagina, yPos);
 
                     yPos += 10;
+                    jaAdicionouCelebracao = true;
                 }
             }
 
@@ -970,7 +1035,7 @@ async function gerarPDF() {
                 const horaFormatada = `${horas.toString().padStart(2, '0')}:${minutos}`; // Formata com 2 dígitos
 
                 const mozeta = horarioObj.mozeta;
-                let texto = `${dataFormatada} - ${horaFormatada}H (Domingo) - Santa Missa na Matriz`;
+                let texto = `${dataFormatada} – ${horaFormatada}H (Domingo) – Santa Missa na Matriz`;
                 if (celebracaoTexto) {
                     texto += `\n${celebracaoTexto}`;
                 }
@@ -1117,50 +1182,13 @@ async function gerarPDF() {
         const posAbracoX = (doc.internal.pageSize.width - larguraAbraco) / 2; // Calcula a posição X para centralizar
         doc.text("GRANDE ABRAÇO A TODOS!", posAbracoX, yPos); // Adiciona o texto centralizado
 
-        // Inicializa o objeto para armazenar as contagens
-        const acolitospEscalados = {};
-
-        // Itera sobre cada domingo
-        missas.forEach(({ dia, horarios }) => {
-            horarios.forEach(horarioObj => {
-                // Verifica as funções para cada horário
-                Object.entries(horarioObj.funcoes).forEach(([funcao, detalhamento]) => {
-                    if (Array.isArray(detalhamento)) {
-                        // Se for uma lista de acólitos, percorre e conta a escala
-                        detalhamento.forEach(acolito => {
-                            if (acolito && acolito.nome) { // Verifica se o acólito é válido
-                                // Incrementa a contagem do acólito
-                                if (acolitospEscalados[acolito.nome]) {
-                                    acolitospEscalados[acolito.nome] += 1;
-                                } else {
-                                    acolitospEscalados[acolito.nome] = 1;
-                                }
-                            }
-                        });
-                    } else {
-                        // Se for apenas um acólito, conta normalmente
-                        const acolito = detalhamento;
-                        if (acolito && acolito.nome) { // Verifica se o acólito é válido
-                            if (acolitospEscalados[acolito.nome]) {
-                                acolitospEscalados[acolito.nome] += 1;
-                            } else {
-                                acolitospEscalados[acolito.nome] = 1;
-                            }
-                        }
-                    }
-                });
-            });
-        });
-
-        // Garantir que todos os acólitos com impedimentos apareçam em acolitospEscalados com valor 0
-        acolitosImpedimentos.forEach(acolito => {
-            if (!acolitospEscalados[acolito.nome]) {
-                acolitospEscalados[acolito.nome] = 0;
-            }
-        });
-
-        // Agora, você tem a contagem de acólitos no mês em acolitospEscalados
-        console.log(acolitospEscalados);
+        //Contagem de vezes que cada acólito aparece na escala
+        const resultado = Object.entries(contadorServicos).map(([Nome, info]) => ({
+            Nome,
+            Quantidade: info.total
+        }));
+        
+        console.log(resultado);
 
         // Baixar o PDF
         doc.save(`Escala_Acólitos_${mesSelecionado}_${anoAtual}.pdf`);
@@ -1169,7 +1197,6 @@ async function gerarPDF() {
         confirmacao.style.display = "block";
     }
 }
-
 
 function voltarInicio() {
     window.location.reload();
