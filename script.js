@@ -21,7 +21,6 @@ const acolitosImpedimentos = [
     { nome: "Beatriz", impedimentos: [] },
     { nome: "Brunna", impedimentos: [] },
     { nome: "Camille", impedimentos: [] },
-    { nome: "Carlos", impedimentos: [] },
     { nome: "Chrisllayla", impedimentos: [] },
     { nome: "Daniel", impedimentos: [] },
     { nome: "Dionísio", impedimentos: [] },
@@ -50,7 +49,7 @@ const acolitosImpedimentos = [
     { nome: "Paulo", impedimentos: [] },
     { nome: "Sabrina", impedimentos: [] },
     { nome: "Thais", impedimentos: [] },
-    { nome: "Vitoria", impedimentos: [] }
+    { nome: "Vitória", impedimentos: [] }
 ];
 
 const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
