@@ -4,7 +4,7 @@ let alocacao = []
 let celebracoesSemanais = []
 
 const nomesMasculinos = [
-    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
+    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
     "Igor", "João Pedro", "Josué", "Paulo"
 ];
 
@@ -63,7 +63,7 @@ const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
 }, {});
 
 const acolitosTuribulo = [
-    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais"
+    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais", "Chrisllayla"
 ];
 
 const acolitosNaveta = [
@@ -74,7 +74,7 @@ const acolitosNaveta = [
 ];
 
 const acolitosCerimoniario = [
-    "Arthur", "Carlos", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
+    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
     "Igor", "João Pedro", "Josué", "Paulo"
 ];
 
