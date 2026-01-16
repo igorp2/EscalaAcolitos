@@ -5,51 +5,96 @@ let celebracoesSemanais = []
 
 const nomesMasculinos = [
     "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
-    "Igor", "João Pedro", "Josué", "Paulo"
+    "Igor", "João Pedro", "Paulo"
 ];
 
 const nomesFemininos = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
-    "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
+    "Beatriz", "Camille", "Chrisllayla",
+    "Fernanda", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro", "Leandra", "Maria Clara",
+    "Maria Luiza", "Mariana", "Natally", "Patrícia", "Vitória"
 ];
 
+const acolitosTuribulo = [
+    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Camille", "Chrisllayla"
+];
+
+const acolitosNaveta = [
+    "Beatriz", "Camille", "Chrisllayla",
+    "Fernanda", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro","Leandra", "Maria Clara",
+    "Maria Luiza", "Mariana", "Natally", "Patrícia", "Vitoria"
+];
+
+const acolitosCerimoniario = [
+    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
+    "Igor", "João Pedro", "Paulo"
+];
+
+const acolitosLibrifera = [
+    "Beatriz", "Camille", "Chrisllayla",
+    "Fernanda", "Iara", "Jamilly Alves", "Jamilly Riguete",
+    "Larissa de Fátima", "Larissa Pinheiro","Leandra", "Maria Clara",
+    "Maria Luiza", "Mariana", "Natally", "Patrícia", "Vitoria"
+];
+
+const irmaos = [["Igor", "Larissa Pinheiro"], ["Beatriz", "Maria Clara"], ["Leandra", "Jamilly Alves"]];
+
 const acolitosImpedimentos = [
-    { nome: "Ana Luiza", impedimentos: [] },
+    { nome: "Ana Beatriz", impedimentos: [] },
+    { nome: "Ana Carolina", impedimentos: [] },
+    { nome: "Ana Luisa", impedimentos: [] },
+    { nome: "Ana Lyvia", impedimentos: [] },
+    { nome: "André", impedimentos: [] },
     { nome: "Arthur", impedimentos: [] },
     { nome: "Beatriz", impedimentos: [] },
-    { nome: "Brunna", impedimentos: [] },
+    { nome: "Brener", impedimentos: [] },
     { nome: "Camille", impedimentos: [] },
+    { nome: "Carla", impedimentos: [] },
     { nome: "Chrisllayla", impedimentos: [] },
     { nome: "Daniel", impedimentos: [] },
+    { nome: "Débora", impedimentos: [] },
     { nome: "Dionísio", impedimentos: [] },
     { nome: "Élio", impedimentos: [] },
-    { nome: "Ester", impedimentos: [] },
+    { nome: "Emylly", impedimentos: [] },
+    { nome: "Felipe", impedimentos: [] },
     { nome: "Fernanda", impedimentos: [] },
+    { nome: "Franciely", impedimentos: [] },
+    { nome: "Gabriel Ferreira", impedimentos: [] },
+    { nome: "Gabriel Herculano", impedimentos: [] },
+    { nome: "Gabriel Nicolato", impedimentos: [] },
     { nome: "Gabriel Nunes", impedimentos: [] },
-    { nome: "Gabriel Olímpio", impedimentos: [] },
-    { nome: "Gabriella", impedimentos: [] },
+    { nome: "Gustavo", impedimentos: [] },
     { nome: "Iara", impedimentos: [] },
     { nome: "Igor", impedimentos: [] },
     { nome: "Jamilly Alves", impedimentos: [] },
     { nome: "Jamilly Riguete", impedimentos: [] },
+    { nome: "João Antônio", impedimentos: [] },
+    { nome: "João Olavio", impedimentos: [] },
     { nome: "João Pedro", impedimentos: [] },
-    { nome: "Josué", impedimentos: [] },
+    { nome: "João Vitor", impedimentos: [] },
+    { nome: "Kelly", impedimentos: [] },
+    { nome: "Lara", impedimentos: [] },
     { nome: "Larissa de Fátima", impedimentos: [] },
     { nome: "Larissa Pinheiro", impedimentos: [] },
-    { nome: "Laryssa Lopes", impedimentos: [] },
     { nome: "Leandra", impedimentos: [] },
+    { nome: "Lucas", impedimentos: [] },
+    { nome: "Luiz Gustavo", impedimentos: [] },
     { nome: "Maria Clara", impedimentos: [] },
-    { nome: "Maria Luiza", impedimentos: [] },
-    { nome: "Mariana", impedimentos: [] },
-    { nome: "Milene", impedimentos: [] },
+    { nome: "Maria Luiza Garcia", impedimentos: [] },
+    { nome: "Maria Luiza Prata", impedimentos: [] },
+    { nome: "Mariana Montenegro", impedimentos: [] },
+    { nome: "Marina Vitória", impedimentos: [] },
+    { nome: "Miguel", impedimentos: [] },
     { nome: "Natally", impedimentos: [] },
     { nome: "Patrícia", impedimentos: [] },
     { nome: "Paulo", impedimentos: [] },
-    { nome: "Sabrina", impedimentos: [] },
-    { nome: "Thais", impedimentos: [] },
-    { nome: "Vitória", impedimentos: [] }
+    { nome: "Samuel", impedimentos: [] },
+    { nome: "Silvia Helena", impedimentos: [] },
+    { nome: "Victória Luiza", impedimentos: [] },
+    { nome: "Vitória Silva", impedimentos: [] },
+    { nome: "Vitória Mendes", impedimentos: [] },
+    { nome: "Yasmin", impedimentos: [] }
 ];
 
 const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
@@ -61,31 +106,6 @@ const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
     };
     return acc;
 }, {});
-
-const acolitosTuribulo = [
-    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Ester", "Laryssa Lopes", "Camille", "Thais", "Chrisllayla"
-];
-
-const acolitosNaveta = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
-    "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
-];
-
-const acolitosCerimoniario = [
-    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
-    "Igor", "João Pedro", "Josué", "Paulo"
-];
-
-const acolitosLibrifera = [
-    "Ana Luiza", "Beatriz", "Brunna", "Camille", "Chrisllayla", "Ester",
-    "Fernanda", "Gabriella", "Iara", "Jamilly Alves", "Jamilly Riguete",
-    "Larissa de Fátima", "Larissa Pinheiro", "Laryssa Lopes", "Leandra", "Maria Clara",
-    "Maria Luiza", "Mariana", "Milene", "Natally", "Patrícia", "Sabrina", "Thais", "Vitoria"
-];
-
-const irmaos = [["Igor", "Larissa Pinheiro"], ["Beatriz", "Maria Clara"], ["Leandra", "Jamilly Alves"], ["Ester", "Gabriel Nunes"]];
 
 document.addEventListener("DOMContentLoaded", function () {
     // Aguardar o carregamento do DOM antes de adicionar o listener
@@ -800,6 +820,9 @@ async function gerarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
+    const tabela = document.getElementById("tabela-acolitos-frequencia");
+    tabela.style.display = "none";
+
     // Capturar os dados do formulário
     const mesSelecionado = document.getElementById("meses").value;
 
@@ -1182,6 +1205,22 @@ async function gerarPDF() {
             Nome,
             Quantidade: info.total
         }));
+
+        const tbody = document.getElementById("tabela-acolitos");
+
+        resultado.forEach(item => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${item.Nome}</td>
+                <td>${item.Quantidade}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        const tabela = document.getElementById("tabela-acolitos-frequencia");
+        tabela.style.display = "inline";
         
         console.log(resultado);
 
@@ -1194,6 +1233,8 @@ async function gerarPDF() {
 }
 
 function voltarInicio() {
+    const tabela = document.getElementById("tabela-acolitos-frequencia");
+    tabela.style.display = "none";
     window.location.reload();
 }
 
