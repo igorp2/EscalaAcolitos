@@ -4,15 +4,63 @@ let alocacao = []
 let celebracoesSemanais = []
 
 const nomesMasculinos = [
-    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
-    "Igor", "João Pedro", "Paulo"
+    "André",
+    "Arthur",
+    "Brener",
+    "Daniel",
+    "Dionísio",
+    "Élio",
+    "Felipe",
+    "Gabriel Ferreira",
+    "Gabriel Herculano",
+    "Gabriel Nicolato",
+    "Gabriel Nunes",
+    "Gustavo",
+    "Igor",
+    "João Antônio",
+    "João Olavio",
+    "João Pedro",
+    "João Vitor",
+    "Lucas",
+    "Luiz Gustavo",
+    "Miguel",
+    "Paulo",
+    "Samuel"
 ];
 
 const nomesFemininos = [
-    "Beatriz", "Camille", "Chrisllayla",
-    "Fernanda", "Iara", "Jamilly Alves", "Jamilly Riguete",
-    "Larissa de Fátima", "Larissa Pinheiro", "Leandra", "Maria Clara",
-    "Maria Luiza", "Mariana", "Natally", "Patrícia", "Vitória"
+    "Ana Beatriz",
+    "Ana Carolina",
+    "Ana Luisa",
+    "Ana Lyvia",
+    "Beatriz",
+    "Camille",
+    "Carla",
+    "Chrisllayla",
+    "Débora",
+    "Emylly",
+    "Fernanda",
+    "Franciely",
+    "Iara",
+    "Jamilly Alves",
+    "Jamilly Riguete",
+    "Kelly",
+    "Lara",
+    "Larissa de Fátima",
+    "Larissa Pinheiro",
+    "Leandra",
+    "Maria Clara",
+    "Maria Luiza Garcia",
+    "Maria Luiza Prata",
+    "Mariana Montenegro",
+    "Marina Vitória",
+    "Natally",
+    "Patrícia",
+    "Silvia Helena",
+    "Victória Luiza",
+    "Vitória Silva",
+    "Vitória Mendes",
+    "Yasmin"
 ];
 
 const acolitosTuribulo = [
@@ -27,7 +75,7 @@ const acolitosNaveta = [
 ];
 
 const acolitosCerimoniario = [
-    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes", "Gabriel Olímpio",
+    "Arthur", "Daniel", "Dionísio", "Élio", "Gabriel Nunes",
     "Igor", "João Pedro", "Paulo"
 ];
 
@@ -616,20 +664,19 @@ function verificarDisponibilidade(acolito, missa, horario) {
 
 // Função principal para alocar acólitos de forma equitativa e aleatória
 function alocarAcolitosPorFuncao(missas, contadorServicos) {
-    function embaralhar(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    function priorizarMenosEscalados(acolitosDisponiveis) {
-        return acolitosDisponiveis.sort((a, b) => {
-            const escalaA = contadorServicos[a.nome].total;
-            const escalaB = contadorServicos[b.nome].total;
-            return escalaA - escalaB;
-        });
+    function priorizarMenosEscalados(acolitos) {
+        return acolitos
+            .map(a => ({
+                ...a,
+                total: contadorServicos[a.nome]?.total ?? 0
+            }))
+            .sort((a, b) => {
+                if (a.total !== b.total) {
+                    return a.total - b.total; // prioridade REAL
+                }
+                return Math.random() - 0.5; // desempate aleatório
+            })
+            .map(({ total, ...a }) => a);
     }
 
     function verificarEscaladoNoMesmoDia(acolito, missa) {
@@ -666,14 +713,20 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
                 );
             });
 
-            acolitosParaHorario = embaralhar(priorizarMenosEscalados(acolitosParaHorario));
+            acolitosParaHorario = priorizarMenosEscalados(acolitosParaHorario);
 
             const funcoes = { cerimoniario: null, librifera: null, credencia: [], turibulo: null, naveta: null };
             const ocupadas = new Set();
             const dataMissa = new Date(missa.data);
             const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
 
-            acolitosParaHorario = acolitosParaHorario.sort((a, b) => contadorServicos[a.nome].total - contadorServicos[b.nome].total);
+            acolitosParaHorario.sort((a, b) => {
+                const aTotal = contadorServicos[a.nome]?.total ?? 0;
+                const bTotal = contadorServicos[b.nome]?.total ?? 0;
+
+                if (aTotal !== bTotal) return aTotal - bTotal;
+                return Math.random() - 0.5;
+            });
 
             acolitosParaHorario.forEach(acolito => {
                 // Se o acólito já foi escalado, ignorar
@@ -701,7 +754,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
                 } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(acolito.nome)) {
                     funcoes.naveta = acolito;
                     alocado = true;
-                } else if (funcoes.credencia.length < 4) {
+                } else if (funcoes.credencia.length < 5) {
                     funcoes.credencia.push(acolito);
                     alocado = true;
                 }
@@ -720,7 +773,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
                     } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(irmaoObj.nome)) {
                         funcoes.naveta = irmaoObj;
                         irmaoAlocado = true;
-                    } else if (funcoes.credencia.length < 4) {
+                    } else if (funcoes.credencia.length < 5) {
                         funcoes.credencia.push(irmaoObj);
                         irmaoAlocado = true;
                     }
@@ -1079,9 +1132,9 @@ async function gerarPDF() {
                 doc.text(texto, xPos, yPos);
                 yPos += celebracaoTexto ? 15 : 10;
 
-                var funcaoCredenciaFeminino = ["Sineteira / Cruciferária / Manustérgio", "Ceroferária / Ofertório / Bacia", "Ceroferária / Jarra / Ofertório", "Sineteira / Água"];
+                var funcaoCredenciaFeminino = ["Sineteira / Cruciferária", "Sineteira / Manustérgio", "Ceroferária / Água", "Ofertório / Bacia", "Ceroferária / Ofertório / Jarra"];
 
-                var funcaoCredenciaMasculino = ["Sineteiro / Cruciferário / Manustérgio", "Ceroferário / Ofertório / Bacia", "Ceroferário / Jarra / Ofertório", "Sineteiro / Água"];
+                var funcaoCredenciaMasculino = ["Sineteiro / Cruciferário", "Sineteiro / Manustérgio", "Ceroferário / Água", "Ofertório / Bacia", "Ceroferário / Ofertório / Jarra"];
 
                 // Itera sobre todos os dias de alocação
                 alocacao.forEach(diaAtual => {
