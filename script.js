@@ -190,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let domingosComMissa7h = [];
 let domingos = [];
+let missas_adicionais = []
 
 function mostrarTabelaInicial() {
     const mesSelecionado = document.getElementById("meses").value;
@@ -278,6 +279,52 @@ function mostrarTabelaInicial() {
     divTabelaInicial.style.opacity = 1;
 }
 
+function adicionarMissasPorDiaDoMes({ ano, mes, diasDoMes, horarios, missasExistentes }) {
+    diasDoMes.forEach(dia => {
+        horarios.forEach(horario => {
+            const data = new Date(ano, mes - 1, dia);
+
+            // garante que o dia existe no mês
+            if (data.getMonth() !== mes - 1) return;
+
+            // procura se o dia já existe
+            let missaExistente = missasExistentes.find(m => m.dia === dia && m.mes === mes);
+
+            const novoHorario = {
+                hora: horario,
+                turibulo: false,
+                mozeta: false,
+                funcoes: {
+                    cerimoniario: null,
+                    librifera: null,
+                    credencia: [],
+                    turibulo: null,
+                    naveta: null
+                }
+            };
+
+            if (!missaExistente) {
+                // cria o dia se não existir
+                missasExistentes.push({
+                    dia,
+                    mes,
+                    horarios: [novoHorario]
+                });
+            } else {
+                // adiciona horário apenas se ainda não existir
+                const existeHorario = missaExistente.horarios.some(h => h.hora === horario);
+                if (!existeHorario) {
+                    missaExistente.horarios.push(novoHorario);
+                }
+            }
+        });
+    });
+
+    // opcional: ordenar horários por hora
+    missasExistentes.forEach(m => m.horarios.sort((a, b) => a.hora - b.hora));
+}
+
+
 function confirmacaoDomingo() {
     let domingosFormatados = domingos.map(data => {
         const dia = data.getDate();
@@ -296,6 +343,18 @@ function confirmacaoDomingo() {
             horarios: horarios.map(hora => ({ hora, turibulo: false, mozeta: false }))
         };
     });
+
+    adicionarMissasPorDiaDoMes({
+        ano: 2026,
+        mes: 2,
+        diasDoMes: [18],
+        horarios: [7, 19.5],
+        missasExistentes: domingosFormatados
+    });
+
+    domingosFormatados.sort((a, b) =>
+        a.mes !== b.mes ? a.mes - b.mes : a.dia - b.dia
+    );
 
     missas = domingosFormatados;
 
@@ -346,7 +405,7 @@ function confirmacaoDomingo() {
     }
 
     // Preencher a tabela com os dados do JSON
-    missas.forEach(({ dia, mes, horarios }) => {
+    missas.forEach(({ dia, mes, horarios }) => {      
         horarios.forEach(horarioObj => {
             const { hora, turibulo, mozeta } = horarioObj;
 
@@ -502,33 +561,34 @@ function mostrarDomingos() {
     thMarcarTodos.rowSpan = 2;
     tabelaHeader.appendChild(thMarcarTodos);
 
-    // Criar cabeçalhos para as datas
-    domingos.forEach(data => {
+    // === Criar cabeçalhos para as datas e horários ===
+    missas.forEach(missa => {
         const thDia = document.createElement("th");
-        const dia = data.getDate().toString().padStart(2, '0');
-        const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-        const ano = data.getFullYear();
+        const dia = missa.dia.toString().padStart(2, '0');
+        const mes = missa.mes.toString().padStart(2, '0');
 
-        thDia.textContent = `${dia}/${mes}/${ano}`;
-        thDia.colSpan = domingosComMissa7h.includes(data.getDate()) ? 2 : 1;
+        thDia.textContent = `${dia}/${mes}`;
+        thDia.colSpan = missa.horarios.length; // colSpan = número de horários desse dia
         tabelaHeader.appendChild(thDia);
 
-        if (domingosComMissa7h.includes(data.getDate())) {
-            const thHorario7h = document.createElement("th");
-            thHorario7h.textContent = "7:00";
-            tabelaSubHeader.appendChild(thHorario7h);
-        }
-
-        const thHorario1930 = document.createElement("th");
-        thHorario1930.textContent = "19:30";
-        tabelaSubHeader.appendChild(thHorario1930);
+        // Subcabeçalhos para cada horário
+        missa.horarios.forEach(horario => {
+            const thHorario = document.createElement("th");
+            // Transformar 19.5 em 19:30
+            const horaFormatada = Number.isInteger(horario.hora)
+                ? `${horario.hora}:00`
+                : `${Math.floor(horario.hora)}:${(horario.hora % 1) * 60}`;
+            thHorario.textContent = horaFormatada;
+            tabelaSubHeader.appendChild(thHorario);
+        });
     });
 
-    // Função para atualizar o checkbox "Marcar Todos" da linha
+    // === Função para atualizar "Marcar Todos" da linha ===
     function atualizarMarcarTodosLinha(checkboxMarcarTodosLinha, checkboxes) {
-        checkboxMarcarTodosLinha.checked = checkboxes.every(checkbox => checkbox.checked);
+        checkboxMarcarTodosLinha.checked = checkboxes.every(cb => cb.checked);
     }
 
+    // === Criar linhas para cada acólito ===
     acolitosImpedimentos.forEach(acolito => {
         const tr = document.createElement("tr");
 
@@ -537,7 +597,7 @@ function mostrarDomingos() {
         tdNome.textContent = acolito.nome;
         tr.appendChild(tdNome);
 
-        // Checkbox para "Marcar Todos"
+        // Checkbox "Marcar Todos"
         const tdMarcarTodos = document.createElement("td");
         const checkboxMarcarTodos = document.createElement("input");
         checkboxMarcarTodos.type = "checkbox";
@@ -545,63 +605,41 @@ function mostrarDomingos() {
         checkboxMarcarTodos.addEventListener("change", () => {
             const marcar = checkboxMarcarTodos.checked;
 
-            // Atualizar todas as checkboxes para este acólito
-            domingos.forEach(data => {
-                const dia = data.getDate();
-                const missa7h = domingosComMissa7h.includes(dia);
-
-                if (missa7h) {
-                    atualizarCheckboxImpedimento(acolito, dia, 7, marcar);
-                }
-                atualizarCheckboxImpedimento(acolito, dia, 19.5, marcar);
+            // Atualizar todos os horários de todas as missas
+            missas.forEach(missa => {
+                missa.horarios.forEach(horario => {
+                    atualizarCheckboxImpedimento(acolito, missa.dia, horario.hora, marcar);
+                });
             });
 
-            // Atualizar todas as checkboxes visuais
-            const checkboxes = tr.querySelectorAll("input[type='checkbox']");
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = marcar;
-            });
+            // Atualizar visualmente todos os checkboxes da linha
+            const checkboxesLinha = tr.querySelectorAll("input[type='checkbox']");
+            checkboxesLinha.forEach(cb => cb.checked = marcar);
         });
 
         tdMarcarTodos.appendChild(checkboxMarcarTodos);
         tr.appendChild(tdMarcarTodos);
 
-        // Array para armazenar os checkboxes de cada dia
+        // Array para armazenar checkboxes da linha
         const checkboxes = [];
 
-        // Criar checkboxes para cada domingo
-        domingos.forEach(data => {
-            const dia = data.getDate();
+        // Criar checkboxes para cada horário de cada missa
+        missas.forEach(missa => {
+            missa.horarios.forEach(horario => {
+                const td = document.createElement("td");
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = acolito.impedimentos.includes(missa.dia);
 
-            if (domingosComMissa7h.includes(dia)) {
-                const tdDia7h = document.createElement("td");
-                const checkbox7h = document.createElement("input");
-                checkbox7h.type = "checkbox";
-                checkbox7h.checked = acolito.impedimentos.includes(dia);
-
-                checkbox7h.addEventListener("change", () => {
-                    atualizarCheckboxImpedimento(acolito, dia, 7, checkbox7h.checked);
+                checkbox.addEventListener("change", () => {
+                    atualizarCheckboxImpedimento(acolito, missa.dia, horario.hora, checkbox.checked);
                     atualizarMarcarTodosLinha(checkboxMarcarTodos, checkboxes);
                 });
 
-                tdDia7h.appendChild(checkbox7h);
-                tr.appendChild(tdDia7h);
-                checkboxes.push(checkbox7h);
-            }
-
-            const tdDia1930 = document.createElement("td");
-            const checkbox1930 = document.createElement("input");
-            checkbox1930.type = "checkbox";
-            checkbox1930.checked = acolito.impedimentos.includes(dia);
-
-            checkbox1930.addEventListener("change", () => {
-                atualizarCheckboxImpedimento(acolito, dia, 19.5, checkbox1930.checked);
-                atualizarMarcarTodosLinha(checkboxMarcarTodos, checkboxes);
+                td.appendChild(checkbox);
+                tr.appendChild(td);
+                checkboxes.push(checkbox);
             });
-
-            tdDia1930.appendChild(checkbox1930);
-            tr.appendChild(tdDia1930);
-            checkboxes.push(checkbox1930);
         });
 
         tabelaBody.appendChild(tr);
@@ -984,15 +1022,20 @@ async function gerarPDF() {
 
         let indexCelebracoesAdicionadas = 0;
 
-        for (let i = 0; i < domingos.length; i++) {
+        for (let i = 0; i < missas.length; i++) {
             // Verifica o limite da página antes de processar o domingo
             yPos = verificarLimitePagina(doc, yPos, maxY);
 
             // Obter o domingo atual
-            const domingo = domingos[i];
+            const dia = missas[i].dia           
+            const mes = domingos[0].getMonth().toString().padStart(2, '0');
+            const ano = domingos[0].getFullYear();
 
-            // Formatar a data no formato brasileiro
-            const dataFormatada = new Date(domingo).toLocaleDateString("pt-BR", {
+            // Criar um objeto Date completo
+            const dataObj = new Date(ano, mes, dia)
+
+            // Formatar no padrão brasileiro
+            const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric"
@@ -1006,8 +1049,8 @@ async function gerarPDF() {
             const celebracaoTexto = ajustarCelebracao(celebracao);
 
             // Obter os horários associados ao dia
-            const diaInfo = missas.find(dia => dia.dia === new Date(domingo).getDate());
-            const horarios = diaInfo ? diaInfo.horarios : [];
+            const diaInfo = missas.find(m => m.dia === dia);
+            const horarios = diaInfo ? diaInfo.horarios : [];        
 
             var xPos = 15;
 
@@ -1108,6 +1151,19 @@ async function gerarPDF() {
                 }
             }
 
+            function diaDaSemana(dataStr) {
+                // dataStr no formato "dd/mm/aaaa"
+                const [dia, mes, ano] = dataStr.split("/").map(Number);
+
+                // Em JavaScript, meses começam do 0 (0 = janeiro)
+                const data = new Date(ano, mes - 1, dia);
+
+                // Array com nomes dos dias da semana
+                const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+
+                return diasSemana[data.getDay()];
+            }
+
             // Itera sobre os horários para o dia
             horarios.forEach(horarioObj => {
                 const horas = Math.floor(horarioObj.hora); // Parte inteira da hora
@@ -1115,7 +1171,9 @@ async function gerarPDF() {
                 const horaFormatada = `${horas.toString().padStart(2, '0')}:${minutos}`; // Formata com 2 dígitos
 
                 const mozeta = horarioObj.mozeta;
-                let texto = `${dataFormatada} – ${horaFormatada}H (Domingo) – Santa Missa na Matriz`;
+
+                let dia_da_semana = diaDaSemana(dataFormatada)
+                let texto = `${dataFormatada} – ${horaFormatada}H (${dia_da_semana}) – Santa Missa na Matriz`;
                 if (celebracaoTexto) {
                     texto += `\n${celebracaoTexto}`;
                 }
