@@ -86,7 +86,7 @@ const acolitosLibrifera = [
     "Maria Luiza", "Mariana", "Natally", "Patrícia", "Vitoria"
 ];
 
-const irmaos = [["Igor", "Larissa Pinheiro"], ["Beatriz", "Maria Clara"], ["Leandra", "Jamilly Alves"], ["Paulo", "João Antônio"]];
+const irmaos = [["Igor", "Larissa Pinheiro"], ["Beatriz", "Maria Clara"], ["Leandra", "Jamilly Alves"], ["Paulo", "João Antônio"], ["Samuel", "Camille"], ["Luiz Gustavo", "João Pedro"]];
 
 let acolitosImpedimentos = [
     { nome: "Ana Beatriz", impedimentos: [] },
@@ -148,8 +148,13 @@ let acolitosImpedimentos = [
 const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
     acc[acolito.nome] = {
         total: 0,
-        funcoes: {},
-        finaisDeSemana: new Set(),
+        funcoes: {
+            cerimoniario: 0,
+            librifera: 0,
+            turibulo: 0,
+            naveta: 0,
+            credencia: 0
+        },
         diasEscalados: new Set() // Adiciona esta propriedade
     };
     return acc;
@@ -466,7 +471,7 @@ function confirmacaoDomingo() {
             ano: anoAtual,
             mes: mes+1,
             diasDoMes: [18],
-            horarios: [7, 19.5],
+            horarios: [7, 19],
             missasExistentes: domingosFormatados
         });
     }
@@ -535,7 +540,11 @@ function confirmacaoDomingo() {
             tr.appendChild(tdDia);
 
             const tdHorario = document.createElement("td");
-            tdHorario.textContent = `${hora === 19.5 ? "19:30" : "7:00"}`;
+            tdHorario.textContent =
+                hora === 19.5 ? "19:30" :
+                hora === 19   ? "19:00" :
+                "7:00";
+
             tr.appendChild(tdHorario);
 
             // Checkbox para Turíbulo
@@ -748,10 +757,10 @@ function mostrarDomingos() {
                 const td = document.createElement("td");
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.checked = acolito.impedimentos.includes(missa.dia);
-                // checkbox.checked = acolito.impedimentos.some(
-                //     imp => imp.dia === missa.dia && imp.horario === horario.hora
-                // );
+                // checkbox.checked = acolito.impedimentos.includes(missa.dia);
+                checkbox.checked = acolito.impedimentos.some(
+                    imp => imp.dia === missa.dia && imp.horario === horario.hora
+                );
 
                 checkbox.addEventListener("change", () => {
                     atualizarCheckboxImpedimento(acolito, missa.dia, horario.hora, checkbox.checked);
@@ -840,16 +849,12 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
     }
 
     function verificarEscaladoNoMesmoDia(acolito, missa) {
-        const dataMissa = new Date(missa.data);
-        const diaAtual = `${dataMissa.getFullYear()}-${(dataMissa.getMonth() + 1).toString().padStart(2, '0')}-${dataMissa.getDate().toString().padStart(2, '0')}`; // Formato YYYY-MM-DD com padding
-
+        // const dataMissa = new Date(missa.data);
+        // const diaAtual = `${dataMissa.getFullYear()}-${(dataMissa.getMonth() + 1).toString().padStart(2, '0')}-${dataMissa.getDate().toString().padStart(2, '0')}`; // Formato YYYY-MM-DD com padding       
         // Se o acólito já foi escalado nesse dia, então permite múltiplos escalamentos em dias diferentes
-        if (contadorServicos[acolito.nome].diasEscalados.has(diaAtual)) {
-            return true;  // Permite alocação no mesmo dia
+        if (contadorServicos[acolito.nome].diasEscalados.has(missa.dia)) {
+            return false;  // Não permite alocação no mesmo dia
         }
-
-        // Marca o acólito como escalado nesse dia
-        contadorServicos[acolito.nome].diasEscalados.add(diaAtual);
 
         return true;
     }
@@ -990,7 +995,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
             ].forEach(acolito => {
                 if (acolito) {
                     contadorServicos[acolito.nome].total++;
-                    contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual);
+                    contadorServicos[acolito.nome].diasEscalados.add(missa.dia)
                 }
             });
 
@@ -1011,7 +1016,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
         });
 
         missa.horarios = missa.horarios.map(horario => {
-            let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {
+            let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {               
                 return (
                     !cacheAlocadosNoHorario.has(acolito.nome) &&
                     verificarDisponibilidade(acolito, missa, horario) &&                    
@@ -1093,6 +1098,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
                     }
                 }
 
+
                 // Se o irmão não coube, desfaz a alocação do primeiro e continua tentando
                 if (alocado && irmaoObj && !irmaoAlocado) {
                     // Remover o acólito principal da escala e continuar tentando outra configuração
@@ -1141,7 +1147,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
             ].forEach(acolito => {
                 if (acolito) {
                     contadorServicos[acolito.nome].total++;
-                    contadorServicos[acolito.nome].finaisDeSemana.add(semanaAtual);
+                    contadorServicos[acolito.nome].diasEscalados.add(missa.dia)
                 }
             });
 
@@ -1176,10 +1182,6 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
         if (a.mes !== b.mes) return a.mes - b.mes;
         return a.dia - b.dia;
     });
-
-    console.log(escalasAdoracao)
-    console.log(todasEscalas);
-
 
     // Função para verificar acólitos com 0 escalações
     function verificarAcolitosZeroEscalacoes() {
@@ -1721,6 +1723,7 @@ async function gerarPDF() {
         ordenarTabelaPorQuantidade();
         
         console.log(resultado);
+        console.log(contadorServicos)
 
         // Baixar o PDF
         doc.save(`Escala_Acólitos_${mesSelecionado}_${anoAtual}.pdf`);
