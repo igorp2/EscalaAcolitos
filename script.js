@@ -64,7 +64,7 @@ const nomesFemininos = [
 ];
 
 const acolitosTuribulo = [
-    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Camille", "Chrisllayla"
+    "Daniel", "Dionísio", "Gabriel Nunes", "João Pedro", "Maria Luiza", "Camille", "Chrisllayla", "Paulo", "Leandra", "Fernanda", "Arthur"
 ];
 
 const acolitosNaveta = [
@@ -144,21 +144,6 @@ let acolitosImpedimentos = [
     { nome: "Vitória Mendes", impedimentos: [] },
     { nome: "Yasmin", impedimentos: [] }
 ];
-
-const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
-    acc[acolito.nome] = {
-        total: 0,
-        funcoes: {
-            cerimoniario: 0,
-            librifera: 0,
-            turibulo: 0,
-            naveta: 0,
-            credencia: 0
-        },
-        diasEscalados: new Set() // Adiciona esta propriedade
-    };
-    return acc;
-}, {});
 
 document.addEventListener("DOMContentLoaded", function () {
     // Aguardar o carregamento do DOM antes de adicionar o listener
@@ -865,8 +850,7 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
 
     function alocarAcolitosAdoracao(missa) {
         const cacheAlocadosNoHorario = new Set();
-
-        // mapa de irmãos (igual ao seu)
+        
         const irmaoMap = new Map();
         irmaos.forEach(([a, b]) => {
             irmaoMap.set(a, b);
@@ -889,7 +873,6 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
             };
 
             const dataMissa = new Date(missa.data);
-            const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
 
             // mesma ordenação balanceada por função
             acolitosParaHorario.sort((a, b) => {
@@ -1004,11 +987,68 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
 
         return missa;
     }
+    
+    function tentarAlocar(acolito, funcoes, horario) {
+        // Lista de funções possíveis para o acolito neste horário
+        const funcoesPossiveis = [];
+
+        // Cerimoniário
+        if (acolitosCerimoniario.includes(acolito.nome) && !funcoes.cerimoniario) {
+            funcoesPossiveis.push({
+                alocar: () => funcoes.cerimoniario = acolito,
+                count: contadorServicos[acolito.nome].funcoes.cerimoniario
+            });
+        }
+
+        // Librífera
+        if (acolitosLibrifera.includes(acolito.nome) && !funcoes.librifera) {
+            funcoesPossiveis.push({
+                alocar: () => funcoes.librifera = acolito,
+                count: contadorServicos[acolito.nome].funcoes.librifera
+            });
+        }
+
+        // Turíbulo e Naveta (somente se houver turíbulo no horário)
+        if (horario.turibulo) {
+            if (acolitosTuribulo.includes(acolito.nome) && !funcoes.turibulo) {
+                funcoesPossiveis.push({
+                    alocar: () => funcoes.turibulo = acolito,
+                    count: contadorServicos[acolito.nome].funcoes.turibulo
+                });
+            }
+            if (acolitosNaveta.includes(acolito.nome) && !funcoes.naveta) {
+                funcoesPossiveis.push({
+                    alocar: () => funcoes.naveta = acolito,
+                    count: contadorServicos[acolito.nome].funcoes.naveta
+                });
+            }
+        }
+
+        // Credência como fallback
+        if (funcoes.credencia.length < 5) {
+            funcoesPossiveis.push({
+                alocar: () => funcoes.credencia.push(acolito),
+                count: contadorServicos[acolito.nome].funcoes.credencia
+            });
+        }
+
+        // 🔀 Embaralha aleatoriamente, mas prioriza funções que a pessoa menos fez
+        funcoesPossiveis.sort((a, b) => a.count - b.count || Math.random() - 0.5);
+
+        // Tenta alocar na primeira função possível
+        if (funcoesPossiveis.length > 0) {
+            funcoesPossiveis[0].alocar();
+            return true;
+        }
+
+        return false;
+    }
+
 
     function alocarAcólitosBalanceados(missa) {
         const cacheAlocadosNoHorario = new Set();
 
-        // Criar um mapa de irmãos para consulta rápida
+        // Criar um mapa de irmãos
         const irmaoMap = new Map();
         irmaos.forEach(([irmao1, irmao2]) => {
             irmaoMap.set(irmao1, irmao2);
@@ -1016,138 +1056,83 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
         });
 
         missa.horarios = missa.horarios.map(horario => {
-            let acolitosParaHorario = acolitosImpedimentos.filter(acolito => {               
-                return (
-                    !cacheAlocadosNoHorario.has(acolito.nome) &&
-                    verificarDisponibilidade(acolito, missa, horario) &&                    
-                    verificarEscaladoNoMesmoDia(acolito, missa)
-                );
-            });
+            let acolitosParaHorario = acolitosImpedimentos.filter(acolito =>
+                !cacheAlocadosNoHorario.has(acolito.nome) &&
+                verificarDisponibilidade(acolito, missa, horario) &&
+                verificarEscaladoNoMesmoDia(acolito, missa)
+            );
 
             acolitosParaHorario = priorizarMenosEscalados(acolitosParaHorario);
 
-            const funcoes = { cerimoniario: null, librifera: null, credencia: [], turibulo: null, naveta: null };
-            const ocupadas = new Set();
-            const dataMissa = new Date(missa.data);
-            const semanaAtual = Math.floor(dataMissa.getTime() / (7 * 24 * 60 * 60 * 1000));
+            const funcoes = {
+                cerimoniario: null,
+                librifera: null,
+                credencia: [],
+                turibulo: null,
+                naveta: null
+            };
 
-            acolitosParaHorario.sort((a, b) => {
-                const funcoes = ["cerimoniario", "librifera", "turibulo", "naveta", "credencia"];
+            const funcoesIncompletas = () =>
+                !funcoes.cerimoniario ||
+                !funcoes.librifera ||
+                (horario.turibulo && (!funcoes.turibulo || !funcoes.naveta)) ||
+                funcoes.credencia.length < 5;
 
-                const aMin = Math.min(...funcoes.map(f => contadorFuncao(a, f)));
-                const bMin = Math.min(...funcoes.map(f => contadorFuncao(b, f)));
+            while (funcoesIncompletas()) {
+                let alocouAlgum = false;
 
-                if (aMin !== bMin) return aMin - bMin;
+                for (let acolito of acolitosParaHorario) {
+                    if (cacheAlocadosNoHorario.has(acolito.nome)) continue;
 
-                const aTotal = contadorServicos[a.nome]?.total ?? 0;
-                const bTotal = contadorServicos[b.nome]?.total ?? 0;
-
-                if (aTotal !== bTotal) return aTotal - bTotal;
-
-                return Math.random() - 0.5;
-            });
-
-            acolitosParaHorario.forEach(acolito => {
-                // Se o acólito já foi escalado, ignorar
-                if (cacheAlocadosNoHorario.has(acolito.nome)) return;
-
-                let irmaoObj = null;
-                if (irmaoMap.has(acolito.nome)) {
-                    const irmaoNome = irmaoMap.get(acolito.nome);
-                    irmaoObj = acolitosParaHorario.find(a => a.nome === irmaoNome && !cacheAlocadosNoHorario.has(a.nome));
-                }
-
-                let alocado = false;
-                let irmaoAlocado = false;
-
-                // Tentar alocar o acólito principal
-                if (!funcoes.cerimoniario && acolitosCerimoniario.includes(acolito.nome)) {
-                    funcoes.cerimoniario = acolito;
-                    alocado = true;
-                } else if (!funcoes.librifera && acolitosLibrifera.includes(acolito.nome)) {
-                    funcoes.librifera = acolito;
-                    alocado = true;
-                } else if (horario.turibulo && !funcoes.turibulo && acolitosTuribulo.includes(acolito.nome)) {
-                    funcoes.turibulo = acolito;
-                    alocado = true;
-                } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(acolito.nome)) {
-                    funcoes.naveta = acolito;
-                    alocado = true;
-                } else if (funcoes.credencia.length < 5) {
-                    funcoes.credencia.push(acolito);
-                    alocado = true;
-                }
-
-                // Se alocou o primeiro, agora tenta alocar o irmão imediatamente
-                if (alocado && irmaoObj) {
-                    if (!funcoes.cerimoniario && acolitosCerimoniario.includes(irmaoObj.nome)) {
-                        funcoes.cerimoniario = irmaoObj;
-                        irmaoAlocado = true;
-                    } else if (!funcoes.librifera && acolitosLibrifera.includes(irmaoObj.nome)) {
-                        funcoes.librifera = irmaoObj;
-                        irmaoAlocado = true;
-                    } else if (horario.turibulo && !funcoes.turibulo && acolitosTuribulo.includes(irmaoObj.nome)) {
-                        funcoes.turibulo = irmaoObj;
-                        irmaoAlocado = true;
-                    } else if (horario.turibulo && !funcoes.naveta && acolitosNaveta.includes(irmaoObj.nome)) {
-                        funcoes.naveta = irmaoObj;
-                        irmaoAlocado = true;
-                    } else if (funcoes.credencia.length < 5) {
-                        funcoes.credencia.push(irmaoObj);
-                        irmaoAlocado = true;
+                    // Pega o irmão se existir
+                    let irmaoObj = null;
+                    if (irmaoMap.has(acolito.nome)) {
+                        const irmaoNome = irmaoMap.get(acolito.nome);
+                        irmaoObj = acolitosParaHorario.find(a =>
+                            a.nome === irmaoNome && !cacheAlocadosNoHorario.has(a.nome)
+                        );
                     }
+
+                    // Se tiver irmão, tenta alocar primeiro o irmão
+                    let irmaoAlocado = true;
+                    if (irmaoObj) {
+                        irmaoAlocado = tentarAlocar(irmaoObj, funcoes, horario);
+                    }
+
+                    // Só aloca o principal se o irmão couber ou se não tiver irmão
+                    let alocado = false;
+                    if (irmaoAlocado) {
+                        alocado = tentarAlocar(acolito, funcoes, horario);
+                    }
+
+                    // Se não conseguiu alocar, desfaz tudo
+                    if (!alocado) {
+                        if (irmaoAlocado && irmaoObj) {
+                            // desfaz o irmão
+                            if (funcoes.cerimoniario === irmaoObj) funcoes.cerimoniario = null;
+                            else if (funcoes.librifera === irmaoObj) funcoes.librifera = null;
+                            else if (funcoes.turibulo === irmaoObj) funcoes.turibulo = null;
+                            else if (funcoes.naveta === irmaoObj) funcoes.naveta = null;
+                            else funcoes.credencia = funcoes.credencia.filter(a => a.nome !== irmaoObj.nome);
+                        }
+                        continue;
+                    }
+
+                    // Marca como alocado
+                    if (alocado) cacheAlocadosNoHorario.add(acolito.nome);
+                    if (irmaoAlocado && irmaoObj) cacheAlocadosNoHorario.add(irmaoObj.nome);
+
+                    alocouAlgum = true;
                 }
 
-
-                // Se o irmão não coube, desfaz a alocação do primeiro e continua tentando
-                if (alocado && irmaoObj && !irmaoAlocado) {
-                    // Remover o acólito principal da escala e continuar tentando outra configuração
-                    if (funcoes.cerimoniario === acolito) funcoes.cerimoniario = null;
-                    else if (funcoes.librifera === acolito) funcoes.librifera = null;
-                    else if (funcoes.turibulo === acolito) funcoes.turibulo = null;
-                    else if (funcoes.naveta === acolito) funcoes.naveta = null;
-                    else funcoes.credencia = funcoes.credencia.filter(a => a.nome !== acolito.nome);
-
-                    return; // Passar para o próximo acólito
-                }
-
-                // Se tudo ocorreu bem, marcar como alocado
-                if (alocado) cacheAlocadosNoHorario.add(acolito.nome);
-                if (irmaoAlocado) cacheAlocadosNoHorario.add(irmaoObj.nome);
-            });
-
-            // Incrementa contadores por função
-            if (funcoes.cerimoniario) {
-                contadorServicos[funcoes.cerimoniario.nome].funcoes.cerimoniario++;
+                if (!alocouAlgum) break; // evita loop infinito
             }
 
-            if (funcoes.librifera) {
-                contadorServicos[funcoes.librifera.nome].funcoes.librifera++;
-            }
-
-            if (funcoes.turibulo) {
-                contadorServicos[funcoes.turibulo.nome].funcoes.turibulo++;
-            }
-
-            if (funcoes.naveta) {
-                contadorServicos[funcoes.naveta.nome].funcoes.naveta++;
-            }
-
-            funcoes.credencia.forEach(acolito => {
-                contadorServicos[acolito.nome].funcoes.credencia++;
-            });
-
-            // Incrementa total e finais de semana (mantém sua estrutura)
-            [
-                funcoes.cerimoniario,
-                funcoes.librifera,
-                ...funcoes.credencia,
-                funcoes.turibulo,
-                funcoes.naveta
-            ].forEach(acolito => {
+            // Incrementa total e dias escalados
+            [funcoes.cerimoniario, funcoes.librifera, ...funcoes.credencia, funcoes.turibulo, funcoes.naveta].forEach(acolito => {
                 if (acolito) {
                     contadorServicos[acolito.nome].total++;
-                    contadorServicos[acolito.nome].diasEscalados.add(missa.dia)
+                    contadorServicos[acolito.nome].diasEscalados.add(missa.dia);
                 }
             });
 
@@ -1157,15 +1142,6 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
         return missa;
     }
 
-   // Escalas das missas normais
-    const escalasMissas = missas.flatMap(missa => {
-        const horariosMissas = missa.horarios.filter(h => h.adoracao === false);
-        if (horariosMissas.length === 0) return [];
-        return alocarAcólitosBalanceados({
-            ...missa
-        });
-    });
-
     // Escalas apenas de adoração
     const escalasAdoracao = missas.flatMap(missa => {
         const horariosAdoracao = missa.horarios.filter(h => h.adoracao === true);
@@ -1173,6 +1149,15 @@ function alocarAcolitosPorFuncao(missas, contadorServicos) {
         return alocarAcolitosAdoracao({
             ...missa,
             horarios: horariosAdoracao
+        });
+    });
+
+   // Escalas das missas normais
+    const escalasMissas = missas.flatMap(missa => {
+        const horariosMissas = missa.horarios.filter(h => h.adoracao === false);
+        if (horariosMissas.length === 0) return [];
+        return alocarAcólitosBalanceados({
+            ...missa
         });
     });
 
@@ -1259,6 +1244,21 @@ async function gerarPDF() {
     const tabela = document.getElementById("tabela-acolitos-frequencia");
     tabela.style.display = "none";
 
+    const contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
+        acc[acolito.nome] = {
+            total: 0,
+            funcoes: {
+                cerimoniario: 0,
+                librifera: 0,
+                turibulo: 0,
+                naveta: 0,
+                credencia: 0
+            },
+            diasEscalados: new Set() // Adiciona esta propriedade
+        };
+        return acc;
+    }, {});
+
     // Capturar os dados do formulário
     const mesSelecionado = document.getElementById("meses").value;
 
@@ -1291,13 +1291,28 @@ async function gerarPDF() {
         naoEscalados = escala.naoEscalados;
         totalEscalacoes = escala.totalEscalacoesFinal;
 
+        // Removido por enquanto
         // Verificar sem mesmo com disponibilidade alguém não tenha sido escalado
-        while (naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
-            escala = alocarAcolitosPorFuncao(missas);
-            alocacao = escala.todasEscalas;
-            naoEscalados = escala.naoEscalados;
-            totalEscalacoes = escala.totalEscalacoesFinal;
-        }
+        // while (naoEscalados.length != 0 && totalEscalacoes > acolitosImpedimentos.length) {
+        //     contadorServicos = acolitosImpedimentos.reduce((acc, acolito) => {
+        //         acc[acolito.nome] = {
+        //             total: 0,
+        //             funcoes: {
+        //                 cerimoniario: 0,
+        //                 librifera: 0,
+        //                 turibulo: 0,
+        //                 naveta: 0,
+        //                 credencia: 0
+        //             },
+        //             diasEscalados: new Set()
+        //         };
+        //         return acc;
+        //     }, {});
+        //     escala = alocarAcolitosPorFuncao(missas);
+        //     alocacao = escala.todasEscalas;
+        //     naoEscalados = escala.naoEscalados;
+        //     totalEscalacoes = escala.totalEscalacoesFinal;
+        // }
 
         // Definindo a largura da página
         var larguraPagina = doc.internal.pageSize.width;
@@ -1706,6 +1721,7 @@ async function gerarPDF() {
         }));
 
         const tbody = document.getElementById("tabela-acolitos");
+        tbody.innerHTML = "";
 
         resultado.forEach(item => {
             const tr = document.createElement("tr");
