@@ -456,7 +456,7 @@ function confirmacaoDomingo() {
             ano: anoAtual,
             mes: mes+1,
             diasDoMes: [18],
-            horarios: [7, 19],
+            horarios: [19],
             missasExistentes: domingosFormatados
         });
     }
